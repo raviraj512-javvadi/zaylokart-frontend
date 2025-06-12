@@ -1,0 +1,169 @@
+/* Main App Layout */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+main {
+  flex-grow: 1;
+}
+
+/* Header Styles */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #fff;
+  height: 70px;
+}
+.header-logo {
+  font-weight: 700;
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+}
+.header-nav-center {
+  display: flex;
+  gap: 2rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+.header-nav-center a:hover { color: #888; }
+.header-nav-center .sale { color: #d9534f; }
+.header-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+}
+.cart-badge {
+  position: absolute;
+  top: -5px;
+  right: -8px;
+  background-color: #d9534f;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 5px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+.dropdown { 
+  position: relative; 
+  display: inline-block; 
+}
+
+/* --- UPDATED DROPDOWN STYLES --- */
+.dropdown-content {
+  display: block;
+  position: absolute;
+  right: 0;
+  top: 150%;
+  background-color: #fff;
+  min-width: 160px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  border-radius: 4px;
+  border: 1px solid #e5e5e5;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+.dropdown-content a, .dropdown-content button { 
+  color: #1a1a1a; 
+  padding: 12px 16px; 
+  display: block; 
+  background: none; 
+  border: none; 
+  width: 100%; 
+  text-align: left; 
+  cursor: pointer; 
+  font-size: 0.9rem; 
+}
+.dropdown-content a:hover, .dropdown-content button:hover { 
+  background-color: #f7f7f7; 
+}
+.dropdown:hover .dropdown-content {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Home Screen Styles */
+.hero-section { text-align: center; padding: 6rem 1rem; background-color: #f7f7f7; }
+.hero-title { font-size: 3rem; font-weight: 700; margin-bottom: 1rem; }
+.hero-subtitle { font-size: 1.1rem; color: #666; max-width: 500px; margin: 0 auto 2rem auto; }
+.hero-button { display: inline-block; background-color: #1a1a1a; color: #fff; padding: 1rem 2rem; font-weight: 600; border-radius: 4px; transition: background-color 0.2s; }
+.hero-button:hover { background-color: #333; }
+.featured-products-section { padding: 4rem 2rem; max-width: 1400px; margin: 0 auto; }
+.featured-title { text-align: center; font-size: 2rem; font-weight: 600; margin-bottom: 3rem; }
+.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; }
+.product-card { display: block; }
+.product-image-container { background-color: #f7f7f7; overflow: hidden; margin-bottom: 1rem; }
+.product-image { width: 100%; height: 350px; object-fit: cover; transition: transform 0.3s ease; }
+.product-card:hover .product-image { transform: scale(1.05); }
+.product-name { font-weight: 500; margin-bottom: 0.5rem; }
+.product-price { font-weight: 600; }
+
+/* Footer Styles */
+.footer { background-color: #1a1a1a; color: #fff; padding: 4rem 2rem 2rem 2rem; }
+.footer-container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; padding-bottom: 3rem; border-bottom: 1px solid #333; }
+.footer-column h3 { margin-bottom: 1.5rem; font-weight: 600; font-size: 0.9rem; letter-spacing: 1px; }
+.footer-column a { display: block; margin-bottom: 1rem; color: #ccc; font-size: 0.9rem; }
+.footer-column a:hover { color: #fff; }
+.footer-bottom { text-align: center; padding-top: 2rem; font-size: 0.8rem; color: #888; }
+/* SearchBox Styles */
+.search-box {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.search-input {
+  border: none;
+  padding: 0.5rem;
+  outline: none;
+}
+.search-button {
+  background: #f0f0f0;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+.search-button:hover {
+  background: #e0e0e0;
+}
+/* SearchBox Styles */
+.search-box {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: #f7f7f7;
+}
+.search-input {
+  border: none;
+  padding: 0.5rem;
+  outline: none;
+  background-color: transparent;
+}
+.search-button {
+  background: transparent;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: #666;
+}

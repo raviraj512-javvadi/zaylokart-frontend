@@ -1,0 +1,13 @@
+/* src/components/Hero.css */
+.hero-container {
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.hero-banner {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+}

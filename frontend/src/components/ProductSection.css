@@ -1,0 +1,30 @@
+.sections-container {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  margin: 30px auto;
+  gap: 20px;
+}
+
+.section-box {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  width: 300px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.item-card {
+  text-align: center;
+}
+
+.item-card img {
+  width: 100%;
+  border-radius: 5px;
+}
