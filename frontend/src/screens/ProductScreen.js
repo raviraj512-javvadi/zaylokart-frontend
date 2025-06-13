@@ -22,7 +22,7 @@ const ProductScreen = () => {
     const fetchProduct = async () => {
       try {
         // --- 2. UPDATE THE FETCH URL ---
-        const response = await fetch(`<span class="math-inline">\{API\_URL\}/api/products/</span>{productId}`);
+        const response = await fetch(`${API_URL}/api/products/${productId}`);
         if (!response.ok) throw new Error('Product not found');
         const data = await response.json();
         setProduct(data);
@@ -70,7 +70,7 @@ const ProductScreen = () => {
   return (
     <div className="product-page-container">
       <div className="product-image-panel">
-        <img src={`<span class="math-inline">\{API\_URL\}</span>{product.imageUrl}`} alt={product.name} />
+        <img src={`${API_URL}${product.imageUrl}`} alt={product.name} />
       </div>
       <div className="product-info-panel">
         <div className="product-info-header">

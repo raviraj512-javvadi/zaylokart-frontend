@@ -2,16 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Edit, Trash2 } from 'lucide-react';
-import API_URL from '../apiConfig'; // This should already be here
+import API_URL from '../apiConfig'; // <-- IMPORT a
+import { Link } from 'react-router-dom';
+dded
 
 const ProductListScreen = () => {
     const [products, setProducts] = useState([]);
     const { userInfo } = useAuth();
     const navigate = useNavigate();
 
-    // This function will be used to fetch the products
+    // Your fetchProducts function is preserved, only the URL is updated
     const fetchProducts = async () => {
-        const response = await fetch(`${API_URL}/api/products`); // Uses API_URL
+        const response = await fetch(`${API_URL}/api/products`);
         const data = await response.json();
         setProducts(data);
     };
@@ -24,10 +26,11 @@ const ProductListScreen = () => {
         }
     }, [userInfo, navigate]);
 
+    // Your deleteHandler function is preserved, only the URL is updated
     const deleteHandler = async (id) => {
         if (window.confirm('Are you sure you want to delete this product?')) {
             try {
-                await fetch(`${API_URL}/api/products/${id}`, { // Uses API_URL
+                await fetch(`${API_URL}/api/products/${id}`, {
                     method: 'DELETE',
                     headers: { Authorization: `Bearer ${userInfo.token}` },
                 });
@@ -38,10 +41,11 @@ const ProductListScreen = () => {
         }
     };
 
+    // Your createProductHandler function is preserved, only the URL is updated
     const createProductHandler = async () => {
         if (window.confirm('Are you sure you want to create a new sample product?')) {
             try {
-                const response = await fetch(`${API_URL}/api/products`, { // Uses API_URL
+                const response = await fetch(`${API_URL}/api/products`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

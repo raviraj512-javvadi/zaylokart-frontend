@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import API_URL from '../apiConfig'; // <-- 1. IMPORT the API URL config
+import API_URL from '../apiConfig';
 import './LoginScreen.css'; 
 
 const RegisterScreen = () => {
@@ -10,7 +10,6 @@ const RegisterScreen = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState(''); 
-
   const { userInfo, login } = useAuth();
   const navigate = useNavigate();
 
@@ -27,23 +26,16 @@ const RegisterScreen = () => {
     } else {
       setMessage('');
       try {
-        // --- 2. UPDATE this fetch call to use the API_URL ---
         const response = await fetch(`${API_URL}/api/users/register`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, email, password }),
         });
-
         const data = await response.json();
         if (!response.ok) {
           throw new Error(data.message || 'Failed to register');
         }
-        
         login(data);
-        // The useEffect will handle the redirect automatically
-
       } catch (err) {
         setMessage(err.message);
       }
