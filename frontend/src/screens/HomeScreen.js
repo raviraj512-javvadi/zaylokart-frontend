@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard.jsx';
+import API_URL from '../apiConfig';
 
 const HomeScreen = () => {
   // --- UPDATE: Now gets both 'category' and 'keyword' from the URL ---

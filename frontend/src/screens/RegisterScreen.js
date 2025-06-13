@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import './LoginScreen.css'; // We can reuse the same CSS!
+import API_URL from '../apiConfig'; // <-- 1. IMPORT the API URL config
+import './LoginScreen.css'; 
 
 const RegisterScreen = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [message, setMessage] = useState(''); // For errors or success
+  const [message, setMessage] = useState(''); 
 
   const { userInfo, login } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if user is already logged in
   useEffect(() => {
     if (userInfo) {
       navigate('/');
@@ -27,7 +27,8 @@ const RegisterScreen = () => {
     } else {
       setMessage('');
       try {
-        const response = await fetch('http://localhost:5001/api/users/register', {
+        // --- 2. UPDATE this fetch call to use the API_URL ---
+        const response = await fetch(`${API_URL}/api/users/register`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -36,14 +37,13 @@ const RegisterScreen = () => {
         });
 
         const data = await response.json();
-
         if (!response.ok) {
           throw new Error(data.message || 'Failed to register');
         }
-
-        // On successful registration, log the user in immediately
+        
         login(data);
-        navigate('/'); // Redirect to home page
+        // The useEffect will handle the redirect automatically
+
       } catch (err) {
         setMessage(err.message);
       }

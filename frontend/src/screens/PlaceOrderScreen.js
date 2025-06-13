@@ -2,22 +2,23 @@ import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import API_URL from '../apiConfig'; // <-- 1. IMPORT THE API URL CONFIG
 import './PlaceOrderScreen.css';
 
 const PlaceOrderScreen = () => {
-  const { cartItems, shippingAddress, removeFromCart } = useCart();
+  const { cartItems, shippingAddress, paymentMethod, removeFromCart } = useCart();
   const { userInfo } = useAuth();
   const navigate = useNavigate();
 
-  // --- UPDATED Calculations ---
   const itemsPrice = cartItems.reduce((acc, item) => acc + Number(item.qty) * Number(item.price), 0);
-  const shippingPrice = 49; // UPDATED: Set to a flat rate of 49
-  const taxPrice = 0;       // REMOVED: Tax is set to 0
-  const totalPrice = itemsPrice + shippingPrice + taxPrice; // This calculation now correctly reflects the changes
+  const shippingPrice = 49;
+  const totalPrice = itemsPrice + shippingPrice;
 
   const placeOrderHandler = async () => {
+    // --- This logic will now be updated based on your next feature choice (e.g., Razorpay or COD) ---
     try {
-      const response = await fetch('/api/orders', {
+      // --- 2. UPDATE this fetch call to use the API_URL ---
+      const response = await fetch(`${API_URL}/api/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -26,20 +27,21 @@ const PlaceOrderScreen = () => {
         body: JSON.stringify({
           orderItems: cartItems,
           shippingAddress,
-          totalPrice: totalPrice, // Send the new total price
+          totalPrice: totalPrice,
+          paymentMethod: paymentMethod, // It's good practice to send this
         }),
       });
-      
+
       const createdOrder = await response.json();
 
       if (!response.ok) {
         throw new Error(createdOrder.message || 'Could not place order');
       }
-      
+
       for (const item of cartItems) {
         removeFromCart(item.cartId);
       }
-      
+
       alert('Order placed successfully!');
       navigate('/');
     } catch (error) {
@@ -57,7 +59,6 @@ const PlaceOrderScreen = () => {
             {shippingAddress.postalCode}, {shippingAddress.country}
           </p>
         </div>
-
         <div className="placeorder-section">
           <h2>Order Items</h2>
           {cartItems.length === 0 ? (
@@ -66,7 +67,7 @@ const PlaceOrderScreen = () => {
             <div className="order-items-list">
               {cartItems.map((item) => (
                 <div key={item.cartId} className="order-item">
-                  <img src={item.imageUrl} alt={item.name} className="order-item-image" />
+                  <img src={`<span class="math-inline">\{API\_URL\}</span>{item.imageUrl}`} alt={item.name} className="order-item-image" />
                   <Link to={`/product/${item._id}`} className="order-item-name">
                     {item.name} ({item.size})
                   </Link>
@@ -79,29 +80,12 @@ const PlaceOrderScreen = () => {
           )}
         </div>
       </div>
-
       <div className="placeorder-summary-card">
         <h2>Order Summary</h2>
-        <div className="summary-row">
-          <span>Items</span>
-          <span>₹{itemsPrice.toLocaleString('en-IN')}</span>
-        </div>
-        <div className="summary-row">
-          <span>Shipping</span>
-          <span>₹{shippingPrice.toLocaleString('en-IN')}</span>
-        </div>
-        
-        {/* The Tax row has been completely removed from display */}
-
-        <div className="summary-row total">
-          <span>Total</span>
-          <span>₹{totalPrice.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-        </div>
-        <button
-          className="action-button"
-          disabled={cartItems.length === 0}
-          onClick={placeOrderHandler}
-        >
+        <div className="summary-row"><span>Items</span><span>₹{itemsPrice.toLocaleString('en-IN')}</span></div>
+        <div className="summary-row"><span>Shipping</span><span>₹{shippingPrice.toLocaleString('en-IN')}</span></div>
+        <div className="summary-row total"><span>Total</span><span>₹{totalPrice.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span></div>
+        <button className="action-button" disabled={cartItems.length === 0} onClick={placeOrderHandler}>
           Place Order
         </button>
       </div>

@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { useWishlist } from '../context/WishlistContext'; // --- 1. Import Wishlist tools ---
-import { Heart } from 'lucide-react';                     // --- 2. Import the Heart Icon ---
+import { useWishlist } from '../context/WishlistContext';
+import { Heart } from 'lucide-react';
+import API_URL from '../apiConfig'; // <-- 1. IMPORT THE API URL CONFIG
 import './ProductScreen.css';
 
 const ProductScreen = () => {
   const { id: productId } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  
-  // --- 3. Get Wishlist state and functions ---
   const { wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
 
   const [product, setProduct] = useState(null);
@@ -22,7 +21,8 @@ const ProductScreen = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`/api/products/${productId}`);
+        // --- 2. UPDATE THE FETCH URL ---
+        const response = await fetch(`<span class="math-inline">\{API\_URL\}/api/products/</span>{productId}`);
         if (!response.ok) throw new Error('Product not found');
         const data = await response.json();
         setProduct(data);
@@ -35,18 +35,17 @@ const ProductScreen = () => {
     fetchProduct();
   }, [productId]);
 
-  // --- 4. Add logic for the wishlist button ---
-  // Check if the current product is already in the wishlist
   const isWishlisted = wishlistItems.some(item => item._id === productId);
 
   const wishlistHandler = () => {
+    if (!userInfo) { navigate('/login'); return; } // Ensure user is logged in
     if (isWishlisted) {
       removeFromWishlist(productId);
     } else {
       addToWishlist(productId);
     }
   };
-  
+
   const addToCartHandler = () => {
     if (!selectedSize) { alert('Please select a size'); return; }
     addToCart(product, qty, selectedSize.name);
@@ -59,6 +58,9 @@ const ProductScreen = () => {
     navigate('/shipping');
   };
 
+  // ... The rest of your JSX remains the same ...
+  // (The code below is unchanged)
+
   if (loading) return <div style={{textAlign: 'center', padding: '5rem'}}>Loading...</div>;
   if (error) return <div style={{textAlign: 'center', padding: '5rem'}}>Error: {error}</div>;
   if (!product) return <div style={{textAlign: 'center', padding: '5rem'}}>Product not found.</div>;
@@ -68,11 +70,9 @@ const ProductScreen = () => {
   return (
     <div className="product-page-container">
       <div className="product-image-panel">
-        <img src={product.imageUrl} alt={product.name} />
+        <img src={`<span class="math-inline">\{API\_URL\}</span>{product.imageUrl}`} alt={product.name} />
       </div>
-
       <div className="product-info-panel">
-        {/* --- 5. Add a wrapper for the title and the new heart button --- */}
         <div className="product-info-header">
           <h1 className="product-info-name">{product.name}</h1>
           <button className="wishlist-btn" onClick={wishlistHandler}>
@@ -98,7 +98,6 @@ const ProductScreen = () => {
           </div>
         </div>
       </div>
-
       <div className="product-buy-box">
         <p className="buy-box-price">₹{product.price.toLocaleString('en-IN')}</p>
         <p className="buy-box-status" style={{ color: totalStock > 0 ? 'green' : 'red' }}>

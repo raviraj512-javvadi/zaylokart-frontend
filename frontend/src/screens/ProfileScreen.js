@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
+import API_URL from '../apiConfig'; // <-- 1. IMPORT THE API URL CONFIG
 
 const ProfileScreen = () => {
   const [orders, setOrders] = useState([]);
@@ -14,10 +15,10 @@ const ProfileScreen = () => {
         return;
       }
       try {
-        const response = await fetch('/api/orders/myorders', {
+        // --- 2. UPDATE this fetch call to use the API_URL ---
+        const response = await fetch(`${API_URL}/api/orders/myorders`, {
           headers: {
-            // We must send the token to access this protected route
-            Authorization: `Bearer ${userInfo.token}`,
+            'Authorization': `Bearer ${userInfo.token}`,
           },
         });
         const data = await response.json();

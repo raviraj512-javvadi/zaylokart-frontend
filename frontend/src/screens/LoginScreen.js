@@ -1,30 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import API_URL from '../apiConfig'; // <-- 1. IMPORT the API URL config
 import './LoginScreen.css';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { login } = useAuth();
+  
+  const { userInfo, login } = useAuth();
   const navigate = useNavigate();
+
+  // This effect will redirect the user if they are already logged in
+  useEffect(() => {
+    if (userInfo) {
+      navigate('/');
+    }
+  }, [userInfo, navigate]);
 
   const submitHandler = async (e) => {
     e.preventDefault();
     setError('');
     try {
-      const response = await fetch('http://localhost:5001/api/users/login', {
+      // --- 2. UPDATE this fetch call to use the API_URL ---
+      const response = await fetch(`${API_URL}/api/users/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
+
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message || 'Failed to login');
       }
-      login(data);
-      navigate('/');
+      
+      login(data); // This updates the global state
+      // The useEffect above will now handle the redirect automatically
+
     } catch (err) {
       setError(err.message);
     }
