@@ -15,6 +15,4 @@ const getMyOrders = async (req, res) => {
     res.status(200).json(orders);
 };
 
-
-// --- UPDATE THE EXPORT AT THE BOTTOM ---
 export { addOrderItems, getMyOrders };
