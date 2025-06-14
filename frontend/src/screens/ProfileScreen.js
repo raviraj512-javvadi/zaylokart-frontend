@@ -15,7 +15,7 @@ const ProfileScreen = () => {
         return;
       }
       try {
-        // --- 2. UPDATE this fetch call to use the API_URL ---
+        // --- 2. UPDATE THIS FETCH URL ---
         const response = await fetch(`${API_URL}/api/orders/myorders`, {
           headers: {
             'Authorization': `Bearer ${userInfo.token}`,

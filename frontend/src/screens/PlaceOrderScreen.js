@@ -15,9 +15,8 @@ const PlaceOrderScreen = () => {
   const totalPrice = itemsPrice + shippingPrice;
 
   const placeOrderHandler = async () => {
-    // --- This logic will now be updated based on your next feature choice (e.g., Razorpay or COD) ---
     try {
-      // --- 2. UPDATE this fetch call to use the API_URL ---
+      // --- 2. UPDATE THIS FETCH URL ---
       const response = await fetch(`${API_URL}/api/orders`, {
         method: 'POST',
         headers: {
@@ -28,7 +27,7 @@ const PlaceOrderScreen = () => {
           orderItems: cartItems,
           shippingAddress,
           totalPrice: totalPrice,
-          paymentMethod: paymentMethod, // It's good practice to send this
+          paymentMethod: paymentMethod,
         }),
       });
 
@@ -67,6 +66,7 @@ const PlaceOrderScreen = () => {
             <div className="order-items-list">
               {cartItems.map((item) => (
                 <div key={item.cartId} className="order-item">
+                  {/* --- 3. UPDATE THE IMAGE URL --- */}
                   <img src={`<span class="math-inline">\{API\_URL\}</span>{item.imageUrl}`} alt={item.name} className="order-item-image" />
                   <Link to={`/product/${item._id}`} className="order-item-name">
                     {item.name} ({item.size})

@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Edit, Trash2 } from 'lucide-react';
-import API_URL from '../apiConfig'; // <-- IMPORT a
-import { Link } from 'react-router-dom';
-dded
+import API_URL from '../apiConfig'; // <-- 1. IMPORT THE API URL CONFIG
 
 const ProductListScreen = () => {
     const [products, setProducts] = useState([]);
     const { userInfo } = useAuth();
     const navigate = useNavigate();
 
-    // Your fetchProducts function is preserved, only the URL is updated
     const fetchProducts = async () => {
+        // --- 2. UPDATE THIS FETCH URL ---
         const response = await fetch(`${API_URL}/api/products`);
         const data = await response.json();
         setProducts(data);
@@ -26,11 +24,11 @@ const ProductListScreen = () => {
         }
     }, [userInfo, navigate]);
 
-    // Your deleteHandler function is preserved, only the URL is updated
     const deleteHandler = async (id) => {
         if (window.confirm('Are you sure you want to delete this product?')) {
             try {
-                await fetch(`${API_URL}/api/products/${id}`, {
+                // --- 3. UPDATE THIS FETCH URL ---
+                await fetch(`<span class="math-inline">\{API\_URL\}/api/products/</span>{id}`, {
                     method: 'DELETE',
                     headers: { Authorization: `Bearer ${userInfo.token}` },
                 });
@@ -41,10 +39,10 @@ const ProductListScreen = () => {
         }
     };
 
-    // Your createProductHandler function is preserved, only the URL is updated
     const createProductHandler = async () => {
         if (window.confirm('Are you sure you want to create a new sample product?')) {
             try {
+                // --- 4. UPDATE THIS FETCH URL ---
                 const response = await fetch(`${API_URL}/api/products`, {
                     method: 'POST',
                     headers: {
@@ -60,7 +58,7 @@ const ProductListScreen = () => {
             }
         }
     };
-    
+
     return (
         <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

@@ -9,7 +9,6 @@ const ProductEditScreen = () => {
     const navigate = useNavigate();
     const { userInfo } = useAuth();
 
-    // (Your other state variables remain the same)
     const [name, setName] = useState('');
     const [price, setPrice] = useState(0);
     const [imageUrl, setImageUrl] = useState('');
@@ -21,25 +20,44 @@ const ProductEditScreen = () => {
 
     useEffect(() => {
         const fetchProduct = async () => {
-            // --- 2. UPDATE THIS FETCH URL ---
-            const response = await fetch(`<span class="math-inline">\{API\_URL\}/api/products/</span>{productId}`);
-            const data = await response.json();
-            setName(data.name);
-            setPrice(data.price);
-            setImageUrl(data.imageUrl);
-            setBrand(data.brand);
-            setCategory(data.category);
-            setDescription(data.description);
-            if (data.sizes && data.sizes.length > 0) {
-                setSizes(data.sizes);
+            try {
+                // --- 2. UPDATE THIS FETCH URL ---
+                const response = await fetch(`<span class="math-inline">\{API\_URL\}/api/products/</span>{productId}`);
+                const data = await response.json();
+                setName(data.name);
+                setPrice(data.price);
+                setImageUrl(data.imageUrl);
+                setBrand(data.brand);
+                setCategory(data.category);
+                setDescription(data.description);
+                if (data.sizes && data.sizes.length > 0) {
+                    setSizes(data.sizes);
+                }
+            } catch (error) {
+                console.error('Failed to fetch product details', error);
             }
         };
-        fetchProduct();
-    }, [productId]);
 
-    const handleSizeChange = (index, event) => { /* ... same as before ... */ };
-    const addSizeField = () => { /* ... same as before ... */ };
-    const removeSizeField = (index) => { /* ... same as before ... */ };
+        // Only fetch product if it's an existing product, not a new one
+        if (productId) {
+            fetchProduct();
+        }
+    }, [productId]);
+     const handleSizeChange = (index, event) => {
+const newSizes = [...sizes];
+newSizes[index][event.target.name] = event.target.value;
+setSizes(newSizes);
+};
+
+    const addSizeField = () => {
+        setSizes([...sizes, { name: '', stock: 0 }]);
+    };
+
+    const removeSizeField = (index) => {
+        const newSizes = [...sizes];
+        newSizes.splice(index, 1);
+        setSizes(newSizes);
+    };
 
     const uploadFileHandler = async (e) => {
         const file = e.target.files[0];
@@ -82,10 +100,33 @@ const ProductEditScreen = () => {
     };
 
     return (
-      // Your JSX remains exactly the same
-      <div className="login-container">
-        {/* ... form ... */}
-      </div>
+        <div className="login-container">
+            <form className="login-form" onSubmit={submitHandler}>
+                <h1>Edit Product</h1>
+                
+                <div className="form-group"><label>Name</label><input type="text" value={name} onChange={e => setName(e.target.value)} /></div>
+                <div className="form-group"><label>Price</label><input type="number" value={price} onChange={e => setPrice(e.target.value)} /></div>
+                <div className="form-group"><label>Image URL</label><input type="text" value={imageUrl} onChange={e => setImageUrl(e.target.value)} /></div>
+                <div className="form-group"><label>Or Upload New Image</label><input type="file" onChange={uploadFileHandler} />{uploading && <p>Uploading...</p>}</div>
+                <div className="form-group"><label>Brand</label><input type="text" value={brand} onChange={e => setBrand(e.target.value)} /></div>
+                <div className="form-group"><label>Category</label><input type="text" value={category} onChange={e => setCategory(e.target.value)} /></div>
+                
+                <div className="form-group">
+                    <label>Sizes & Stock</label>
+                    {sizes.map((size, index) => (
+                        <div key={index} className="size-field-row">
+                            <input type="text" name="name" placeholder="Size Name (e.g., M)" value={size.name} onChange={event => handleSizeChange(index, event)} required/>
+                            <input type="number" name="stock" placeholder="Stock" value={size.stock} onChange={event => handleSizeChange(index, event)} required/>
+                            <button type="button" onClick={() => removeSizeField(index)} className="remove-size-btn">Remove</button>
+                        </div>
+                    ))}
+                    <button type="button" onClick={addSizeField} className="add-size-btn">Add New Size</button>
+                </div>
+
+                <div className="form-group"><label>Description</label><textarea value={description} onChange={e => setDescription(e.target.value)} /></div>
+                <button type="submit" className="login-button">Update</button>
+            </form>
+        </div>
     );
 };
 
