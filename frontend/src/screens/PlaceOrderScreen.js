@@ -6,7 +6,7 @@ import API_URL from '../apiConfig';
 import './PlaceOrderScreen.css';
 
 const PlaceOrderScreen = () => {
-  const { cartItems, shippingAddress, paymentMethod, removeFromCart } = useCart();
+  const { cartItems, shippingAddress, paymentMethod, clearCart } = useCart(); // Use clearCart
   const { userInfo } = useAuth();
   const navigate = useNavigate();
 
@@ -14,9 +14,11 @@ const PlaceOrderScreen = () => {
   const shippingPrice = 49;
   const totalPrice = itemsPrice + shippingPrice;
 
+  // --- THIS IS THE FINAL, UPDATED LOGIC ---
   const placeOrderHandler = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/orders`, {
+      // 1. Send the order details to your backend to save in the database
+      const res = await fetch(`${API_URL}/api/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -25,23 +27,24 @@ const PlaceOrderScreen = () => {
         body: JSON.stringify({
           orderItems: cartItems,
           shippingAddress,
-          totalPrice: totalPrice,
-          paymentMethod: paymentMethod,
+          paymentMethod,
+          totalPrice,
+          isPaid: false, // For COD/UPI at Delivery, this is always false initially
+          paidAt: null,
         }),
       });
-
-      const createdOrder = await response.json();
-
-      if (!response.ok) {
+      
+      const createdOrder = await res.json();
+      if (!res.ok) {
         throw new Error(createdOrder.message || 'Could not place order');
       }
+      
+      // 2. Clear the cart from local storage now that the order is placed
+      clearCart();
 
-      for (const item of cartItems) {
-        removeFromCart(item.cartId);
-      }
+      // 3. Redirect the user to the new "Order Success" page with the new Order ID
+      navigate(`/order/success/${createdOrder._id}`);
 
-      alert('Order placed successfully!');
-      navigate('/');
     } catch (error) {
       alert(`Error: ${error.message}`);
     }
@@ -57,6 +60,16 @@ const PlaceOrderScreen = () => {
             {shippingAddress.postalCode}, {shippingAddress.country}
           </p>
         </div>
+
+        {/* This section now shows the chosen payment method */}
+        <div className="placeorder-section">
+          <h2>Payment Method</h2>
+          <p>
+            <strong>Method: </strong>
+            {paymentMethod}
+          </p>
+        </div>
+
         <div className="placeorder-section">
           <h2>Order Items</h2>
           {cartItems.length === 0 ? (
