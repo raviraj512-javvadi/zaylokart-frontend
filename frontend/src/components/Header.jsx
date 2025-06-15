@@ -20,11 +20,9 @@ const Header = () => {
   return (
     <header className="header">
       <div className="header-content">
-        <Link to="/" className="header-logo">
-          ZAYLOKART
-        </Link>
+        <Link to="/" className="header-logo">ZAYLOKART</Link>
 
-        <nav className="header-nav-center">
+        <nav className="header-nav">
           <Link to="/category/new">NEW</Link>
           <Link to="/groceries">GROCERIES</Link>
           <Link to="/electronics">ELECTRONICS</Link>
@@ -32,12 +30,12 @@ const Header = () => {
           <Link to="/sale" className="sale">SALE</Link>
         </nav>
 
-        <div className="header-nav-right">
+        <div className="header-actions">
           <SearchBox />
 
           {userInfo && userInfo.isAdmin && (
             <div className="dropdown">
-              <button className="icon-button bold">Admin</button>
+              <button className="icon-button">Admin</button>
               <div className="dropdown-content">
                 <Link to="/admin/productlist">Products</Link>
                 <Link to="/admin/orderlist">Orders</Link>
