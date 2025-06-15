@@ -51,7 +51,8 @@ const HomeScreen = () => {
         </section>
       )}
 
-      <section className="featured-products-section">
+      {/* ✅ Wrap in main-content for consistent responsive spacing */}
+      <section className="featured-products-section main-content">
         <h2 className="featured-title">{pageTitle}</h2>
         {loading && <div>Loading products...</div>}
         {error && <div>Error: {error}</div>}
