@@ -1,49 +1,111 @@
-/* App container */
-.app-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+/* General Layout Reset */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f9f9f9;
 }
 
-/* Main content area */
+/* Hero Section */
+.hero-section {
+  background-color: #f0f2f5;
+  padding: 60px 0;
+  text-align: center;
+}
+
+.hero-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.hero-title {
+  font-size: 48px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #0f172a;
+}
+
+.hero-subtitle {
+  font-size: 18px;
+  color: #555;
+  margin-bottom: 30px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-button {
+  background-color: #0f172a;
+  color: #fff;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 5px;
+  display: inline-block;
+  transition: background-color 0.3s ease;
+}
+
+.hero-button:hover {
+  background-color: #1e293b;
+}
+
+/* Main Content Container */
 .main-content {
-  flex: 1;
-  padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
-  width: 100%;
+  padding: 40px 16px;
 }
 
-/* Responsive padding */
-@media (max-width: 768px) {
-  .main-content {
-    padding: 1rem;
-  }
+/* Section Title */
+.featured-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #1e1e1e;
+  margin-bottom: 30px;
+  text-align: center;
 }
 
-/* Product layout - responsive */
+/* Product Grid */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
 }
 
-/* Product card styling */
+/* Product Card (Override if needed) */
 .product-card {
   background-color: #fff;
-  border: 1px solid #ddd;
-  padding: 1rem;
-  border-radius: 8px;
+  border-radius: 10px;
+  padding: 16px;
   text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s;
 }
 
 .product-card:hover {
-  transform: scale(1.02);
+  transform: translateY(-5px);
 }
 
+/* Product Card Image */
 .product-card img {
-  max-width: 100%;
+  width: 100%;
   height: auto;
-  object-fit: cover;
+  max-height: 200px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+/* Product Card Title */
+.product-card h3 {
+  font-size: 16px;
+  color: #1f2937;
+  margin-bottom: 8px;
+}
+
+/* Product Card Price */
+.product-card p {
+  font-size: 14px;
+  color: #4b5563;
 }
