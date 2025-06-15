@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+
 import { useAuth } from '../context/AuthContext';
 import { Edit, Trash2 } from 'lucide-react';
 import API_URL from '../apiConfig';
