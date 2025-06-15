@@ -1,9 +1,8 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, ShoppingBag } from 'lucide-react';
+import { User, ShoppingBag, Search } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import SearchBox from './SearchBox';
 
 const Header = () => {
   const { userInfo, logout } = useAuth();
@@ -19,34 +18,38 @@ const Header = () => {
 
   return (
     <header className="header">
-      <div className="header-content">
-        <Link to="/" className="header-logo">ZAYLOKART</Link>
+      <div className="header-container">
+        {/* Left - Logo */}
+        <div className="header-logo">
+          <Link to="/">ZAYLOKART</Link>
+        </div>
 
+        {/* Center - Navigation */}
         <nav className="header-nav">
           <Link to="/category/new">NEW</Link>
-          <Link to="/groceries">GROCERIES</Link>
-          <Link to="/electronics">ELECTRONICS</Link>
-          <Link to="/fashion-beauty">FASHION & BEAUTY</Link>
+          <Link to="/category/men">MEN</Link>
+          <Link to="/category/women">WOMEN</Link>
           <Link to="/sale" className="sale">SALE</Link>
         </nav>
 
-        <div className="header-actions">
-          <SearchBox />
-
-          {userInfo && userInfo.isAdmin && (
-            <div className="dropdown">
-              <button className="icon-button">Admin</button>
-              <div className="dropdown-content">
-                <Link to="/admin/productlist">Products</Link>
-                <Link to="/admin/orderlist">Orders</Link>
-                <Link to="/admin/userlist">Users</Link>
-              </div>
-            </div>
-          )}
+        {/* Right - Search + Icons */}
+        <div className="header-icons">
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="Search products..."
+              className="search-input"
+            />
+            <button className="search-button">
+              <Search size={18} />
+            </button>
+          </div>
 
           {userInfo ? (
             <div className="dropdown">
-              <button className="icon-button"><User size={20} /></button>
+              <button className="icon-button">
+                <User size={20} />
+              </button>
               <div className="dropdown-content">
                 <Link to="/profile">Profile</Link>
                 <Link to="/wishlist">My Wishlist</Link>
@@ -54,7 +57,9 @@ const Header = () => {
               </div>
             </div>
           ) : (
-            <Link to="/login" className="icon-button"><User size={20} /></Link>
+            <Link to="/login" className="icon-button">
+              <User size={20} />
+            </Link>
           )}
 
           <Link to="/cart" className="icon-button">
