@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import ProductCard from '../components/ProductCard.jsx';
+import ProductCard from '../components/ProductCard';
 import API_URL from '../apiConfig';
 
 const HomeScreen = () => {
@@ -43,30 +43,26 @@ const HomeScreen = () => {
     <>
       {!category && !keyword && (
         <section className="hero-section">
-          <div className="hero-container">
-            <h1 className="hero-title">Style Redefined</h1>
-            <p className="hero-subtitle">
-              Discover curated collections that blend modern trends with timeless comfort. Unmissable deals await.
-            </p>
-            <Link to="/" className="hero-button">EXPLORE THE COLLECTION</Link>
-          </div>
+          <h1 className="hero-title">Style Redefined</h1>
+          <p className="hero-subtitle">
+            Discover curated collections that blend modern trends with timeless comfort. Unmissable deals await.
+          </p>
+          <Link to="/" className="hero-button">EXPLORE THE COLLECTION</Link>
         </section>
       )}
 
-      <section className="featured-products-section">
-        <div className="main-content">
-          <h2 className="featured-title">{pageTitle}</h2>
-          {loading && <div>Loading products...</div>}
-          {error && <div>Error: {error}</div>}
-          <div className="product-grid">
-            {products.length > 0 ? (
-              products.map(product => (
-                <ProductCard key={product._id} product={product} />
-              ))
-            ) : (
-              !loading && <p>No products found.</p>
-            )}
-          </div>
+      <section className="main-content">
+        <h2 className="featured-title">{pageTitle}</h2>
+        {loading && <div>Loading products...</div>}
+        {error && <div>Error: {error}</div>}
+        <div className="product-grid">
+          {products.length > 0 ? (
+            products.map(product => (
+              <ProductCard key={product._id} product={product} />
+            ))
+          ) : (
+            !loading && <p>No products found.</p>
+          )}
         </div>
       </section>
     </>

@@ -8,8 +8,8 @@ const ProductCard = ({ product }) => {
         <img className="product-image" src={product.imageUrl} alt={product.name} />
       </div>
       <div className="product-info">
-        <h3>{product.name}</h3>
-        <p>₹{product.price.toLocaleString('en-IN')}</p>
+        <h3 className="product-name">{product.name}</h3>
+        <p className="product-price">₹{product.price.toLocaleString('en-IN')}</p>
       </div>
     </Link>
   );
