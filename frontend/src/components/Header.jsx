@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { User, ShoppingBag } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import SearchBox from './SearchBox'; // <-- 1. IMPORT THE NEW COMPONENT
+import SearchBox from './SearchBox';
 
 const Header = () => {
   const { userInfo, logout } = useAuth();
@@ -15,12 +15,14 @@ const Header = () => {
     navigate('/');
   };
 
-  const cartItemCount = cartItems.reduce((acc, item) => acc + item.qty, 0);
+  // --- THIS IS THE CORRECTED LINE ---
+  // It safely checks if cartItems exists before trying to use it.
+  const cartItemCount = cartItems ? cartItems.reduce((acc, item) => acc + item.qty, 0) : 0;
 
   return (
     <header className="header">
       <Link to="/" className="header-logo">ZAYLOKART</Link>
-
+      
       <nav className="header-nav-center">
         <Link to="/category/new">NEW</Link>
         <Link to="/groceries">GROCERIES</Link>
@@ -30,18 +32,11 @@ const Header = () => {
       </nav>
 
       <div className="header-nav-right">
-        <SearchBox /> {/* <-- 2. REPLACE THE OLD BUTTON WITH THE SEARCHBOX */}
+        <SearchBox />
 
         {userInfo && userInfo.isAdmin && (
           <div className="dropdown">
-            <button className="icon-button" style={{ fontWeight: 'bold' }}>
-              Admin
-            </button>
-            <div className="dropdown-content">
-              <Link to="/admin/productlist">Products</Link>
-              <Link to="/admin/orderlist">Orders</Link>
-              <Link to="/admin/userlist">Users</Link>
-            </div>
+            <Link to="/admin/productlist" className="icon-button" style={{ fontWeight: 'bold' }}>Admin</Link>
           </div>
         )}
 
