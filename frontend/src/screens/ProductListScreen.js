@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Edit, Trash2 } from 'lucide-react';
-import API_URL from '../apiConfig'; // <-- 1. IMPORT THE API URL CONFIG
+import API_URL from '../apiConfig';
 
 const ProductListScreen = () => {
     const [products, setProducts] = useState([]);
@@ -10,7 +10,6 @@ const ProductListScreen = () => {
     const navigate = useNavigate();
 
     const fetchProducts = async () => {
-        // --- 2. UPDATE THIS FETCH URL ---
         const response = await fetch(`${API_URL}/api/products`);
         const data = await response.json();
         setProducts(data);
@@ -27,8 +26,7 @@ const ProductListScreen = () => {
     const deleteHandler = async (id) => {
         if (window.confirm('Are you sure you want to delete this product?')) {
             try {
-                // --- 3. UPDATE THIS FETCH URL ---
-                await fetch(`<span class="math-inline">\{API\_URL\}/api/products/</span>{id}`, {
+                await fetch(`${API_URL}/api/products/${id}`, {
                     method: 'DELETE',
                     headers: { Authorization: `Bearer ${userInfo.token}` },
                 });
@@ -42,7 +40,6 @@ const ProductListScreen = () => {
     const createProductHandler = async () => {
         if (window.confirm('Are you sure you want to create a new sample product?')) {
             try {
-                // --- 4. UPDATE THIS FETCH URL ---
                 const response = await fetch(`${API_URL}/api/products`, {
                     method: 'POST',
                     headers: {

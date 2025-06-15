@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import API_URL from '../apiConfig'; // <-- 1. IMPORT THE API URL CONFIG
-import './LoginScreen.css'; 
+import API_URL from '../apiConfig';
+import './LoginScreen.css';
 
 const ProductEditScreen = () => {
     const { id: productId } = useParams();
@@ -21,8 +21,7 @@ const ProductEditScreen = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                // --- 2. UPDATE THIS FETCH URL ---
-                const response = await fetch(`<span class="math-inline">\{API\_URL\}/api/products/</span>{productId}`);
+                const response = await fetch(`${API_URL}/api/products/${productId}`);
                 const data = await response.json();
                 setName(data.name);
                 setPrice(data.price);
@@ -38,16 +37,16 @@ const ProductEditScreen = () => {
             }
         };
 
-        // Only fetch product if it's an existing product, not a new one
         if (productId) {
             fetchProduct();
         }
     }, [productId]);
-     const handleSizeChange = (index, event) => {
-const newSizes = [...sizes];
-newSizes[index][event.target.name] = event.target.value;
-setSizes(newSizes);
-};
+
+    const handleSizeChange = (index, event) => {
+        const newSizes = [...sizes];
+        newSizes[index][event.target.name] = event.target.value;
+        setSizes(newSizes);
+    };
 
     const addSizeField = () => {
         setSizes([...sizes, { name: '', stock: 0 }]);
@@ -65,7 +64,6 @@ setSizes(newSizes);
         formData.append('image', file);
         setUploading(true);
         try {
-            // --- 3. UPDATE THIS FETCH URL ---
             const response = await fetch(`${API_URL}/api/upload`, {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${userInfo.token}` },
@@ -83,8 +81,7 @@ setSizes(newSizes);
     const submitHandler = async (e) => {
         e.preventDefault();
         try {
-            // --- 4. UPDATE THIS FETCH URL ---
-            await fetch(`<span class="math-inline">\{API\_URL\}/api/products/</span>{productId}`, {
+            await fetch(`${API_URL}/api/products/${productId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -103,14 +100,14 @@ setSizes(newSizes);
         <div className="login-container">
             <form className="login-form" onSubmit={submitHandler}>
                 <h1>Edit Product</h1>
-                
+
                 <div className="form-group"><label>Name</label><input type="text" value={name} onChange={e => setName(e.target.value)} /></div>
                 <div className="form-group"><label>Price</label><input type="number" value={price} onChange={e => setPrice(e.target.value)} /></div>
                 <div className="form-group"><label>Image URL</label><input type="text" value={imageUrl} onChange={e => setImageUrl(e.target.value)} /></div>
                 <div className="form-group"><label>Or Upload New Image</label><input type="file" onChange={uploadFileHandler} />{uploading && <p>Uploading...</p>}</div>
                 <div className="form-group"><label>Brand</label><input type="text" value={brand} onChange={e => setBrand(e.target.value)} /></div>
                 <div className="form-group"><label>Category</label><input type="text" value={category} onChange={e => setCategory(e.target.value)} /></div>
-                
+
                 <div className="form-group">
                     <label>Sizes & Stock</label>
                     {sizes.map((size, index) => (
