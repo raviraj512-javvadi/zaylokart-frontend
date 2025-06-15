@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import API_URL from '../apiConfig'; // <-- 1. IMPORT THE API URL CONFIG
+import API_URL from '../apiConfig';
 import './PlaceOrderScreen.css';
 
 const PlaceOrderScreen = () => {
@@ -16,7 +16,6 @@ const PlaceOrderScreen = () => {
 
   const placeOrderHandler = async () => {
     try {
-      // --- 2. UPDATE THIS FETCH URL ---
       const response = await fetch(`${API_URL}/api/orders`, {
         method: 'POST',
         headers: {
@@ -54,7 +53,7 @@ const PlaceOrderScreen = () => {
         <div className="placeorder-section">
           <h2>Shipping Address</h2>
           <p>
-            {shippingAddress.address}, {shippingAddress.city}<br/>
+            {shippingAddress.address}, {shippingAddress.city}<br />
             {shippingAddress.postalCode}, {shippingAddress.country}
           </p>
         </div>
@@ -66,13 +65,17 @@ const PlaceOrderScreen = () => {
             <div className="order-items-list">
               {cartItems.map((item) => (
                 <div key={item.cartId} className="order-item">
-                  {/* --- 3. UPDATE THE IMAGE URL --- */}
-                  <img src={`<span class="math-inline">\{API\_URL\}</span>{item.imageUrl}`} alt={item.name} className="order-item-image" />
+                  <img
+                    src={`${API_URL}${item.imageUrl}`}
+                    alt={item.name}
+                    className="order-item-image"
+                  />
                   <Link to={`/product/${item._id}`} className="order-item-name">
                     {item.name} ({item.size})
                   </Link>
                   <div className="order-item-summary">
-                    {item.qty} x ₹{item.price.toLocaleString('en-IN')} = ₹{(item.qty * item.price).toLocaleString('en-IN')}
+                    {item.qty} x ₹{item.price.toLocaleString('en-IN')} = ₹
+                    {(item.qty * item.price).toLocaleString('en-IN')}
                   </div>
                 </div>
               ))}
@@ -82,10 +85,26 @@ const PlaceOrderScreen = () => {
       </div>
       <div className="placeorder-summary-card">
         <h2>Order Summary</h2>
-        <div className="summary-row"><span>Items</span><span>₹{itemsPrice.toLocaleString('en-IN')}</span></div>
-        <div className="summary-row"><span>Shipping</span><span>₹{shippingPrice.toLocaleString('en-IN')}</span></div>
-        <div className="summary-row total"><span>Total</span><span>₹{totalPrice.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span></div>
-        <button className="action-button" disabled={cartItems.length === 0} onClick={placeOrderHandler}>
+        <div className="summary-row">
+          <span>Items</span><span>₹{itemsPrice.toLocaleString('en-IN')}</span>
+        </div>
+        <div className="summary-row">
+          <span>Shipping</span><span>₹{shippingPrice.toLocaleString('en-IN')}</span>
+        </div>
+        <div className="summary-row total">
+          <span>Total</span>
+          <span>
+            ₹{totalPrice.toLocaleString('en-IN', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </span>
+        </div>
+        <button
+          className="action-button"
+          disabled={cartItems.length === 0}
+          onClick={placeOrderHandler}
+        >
           Place Order
         </button>
       </div>

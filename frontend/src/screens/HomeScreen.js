@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard.jsx';
-import API_URL from '../apiConfig'; // <-- 1. IMPORT THE API URL CONFIG
+import API_URL from '../apiConfig'; // Keep this since we now use it
 
 const HomeScreen = () => {
   const { category, keyword } = useParams();
@@ -20,9 +20,7 @@ const HomeScreen = () => {
       }
 
       try {
-        // --- 2. UPDATE THIS FETCH URL ---
-        const response = await fetch(`<span class="math-inline">\{API\_URL\}</span>{url}`);
-
+        const response = await fetch(`${API_URL}${url}`);
         if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
         setProducts(data);
@@ -59,7 +57,7 @@ const HomeScreen = () => {
         {error && <div>Error: {error}</div>}
         <div className="product-grid">
           {products.length > 0 ? (
-             products.map(product => (
+            products.map(product => (
               <ProductCard key={product._id} product={product} />
             ))
           ) : (
