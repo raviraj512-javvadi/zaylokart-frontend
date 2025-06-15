@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import ProductCard from '../components/ProductCard';
-import API_URL from '../apiConfig';
+import ProductCard from '../components/ProductCard.jsx';
+import API_URL from '../apiConfig'; // Keep this since we now use it
 
 const HomeScreen = () => {
   const { category, keyword } = useParams();
@@ -33,10 +33,10 @@ const HomeScreen = () => {
     fetchProducts();
   }, [category, keyword]);
 
-  const pageTitle = keyword
+  const pageTitle = keyword 
     ? `Search Results for: "${keyword}"`
-    : category
-      ? category.replace(/-/g, ' ').toUpperCase()
+    : category 
+      ? category.replace(/-/g, ' ').toUpperCase() 
       : 'Featured Products';
 
   return (
@@ -51,7 +51,7 @@ const HomeScreen = () => {
         </section>
       )}
 
-      <section className="main-content">
+      <section className="featured-products-section main-content">
         <h2 className="featured-title">{pageTitle}</h2>
         {loading && <div>Loading products...</div>}
         {error && <div>Error: {error}</div>}

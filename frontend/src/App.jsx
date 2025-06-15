@@ -1,7 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
-// --- All the necessary imports are here ---
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -20,17 +19,17 @@ import WishlistScreen from './screens/WishlistScreen';
 import GroceriesScreen from './screens/GroceriesScreen';
 import ElectronicsScreen from './screens/ElectronicsScreen';
 
-import './App.css';
+import './styles/App.css';
 
 function App() {
   return (
     <div className="app-container">
       <Header />
-      <main>
+
+      <main className="main-content">
         <Routes>
-          {/* Public Routes */}
           <Route path="/" element={<HomeScreen />} />
-          <Route path="/search/:keyword" element={<HomeScreen />} /> {/* <-- ADDED THIS ROUTE */}
+          <Route path="/search/:keyword" element={<HomeScreen />} />
           <Route path="/category/:category" element={<HomeScreen />} />
           <Route path="/product/:id" element={<ProductScreen />} />
           <Route path="/login" element={<LoginScreen />} />
@@ -38,18 +37,17 @@ function App() {
           <Route path="/cart" element={<CartScreen />} />
           <Route path="/groceries" element={<GroceriesScreen />} />
           <Route path="/electronics" element={<ElectronicsScreen />} />
-          
-          {/* Protected Routes for Regular Users */}
+
           <Route path="/profile" element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>} />
           <Route path="/wishlist" element={<ProtectedRoute><WishlistScreen /></ProtectedRoute>} />
           <Route path="/shipping" element={<ProtectedRoute><ShippingScreen /></ProtectedRoute>} />
           <Route path="/placeorder" element={<ProtectedRoute><PlaceOrderScreen /></ProtectedRoute>} />
 
-          {/* Protected Routes for Admin */}
           <Route path="/admin/productlist" element={<AdminProtectedRoute><ProductListScreen /></AdminProtectedRoute>} />
           <Route path="/admin/product/:id/edit" element={<AdminProtectedRoute><ProductEditScreen /></AdminProtectedRoute>} />
         </Routes>
       </main>
+
       <Footer />
     </div>
   );

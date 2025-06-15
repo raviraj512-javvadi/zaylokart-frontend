@@ -5,6 +5,8 @@ const Footer = () => {
   return (
     <footer className="footer">
       <div className="footer-container">
+        
+        {/* --- THIS IS THE UPDATED SECTION --- */}
         <div className="footer-column">
           <h3>SHOP</h3>
           <Link to="/category/new">NEW</Link>
@@ -20,16 +22,26 @@ const Footer = () => {
           <Link to="/shipping">Shipping</Link>
           <Link to="/returns">Returns</Link>
         </div>
-
         <div className="footer-column">
           <h3>ABOUT</h3>
           <Link to="/our-story">Our Story</Link>
         </div>
-
         <div className="footer-column">
           <h3>FOLLOW US</h3>
-          <a href="https://www.facebook.com/profile.php?id=61577285845643" target="_blank" rel="noopener noreferrer">Facebook</a>
-          <a href="https://www.instagram.com/zaylokart" target="_blank" rel="noopener noreferrer">Instagram</a>
+          <a 
+            href="https://www.facebook.com/profile.php?id=61577285845643" 
+            target="_blank" 
+            rel="noopener noreferrer"
+          >
+            Facebook
+          </a>
+          <a 
+            href="https://www.instagram.com/zaylokart" 
+            target="_blank" 
+            rel="noopener noreferrer"
+          >
+            Instagram
+          </a>
         </div>
       </div>
       <div className="footer-bottom">
