@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import './LoginScreen.css'; // We can reuse these form styles
+import './PaymentScreen.css';
+// Reusing form styles
 
 const PaymentScreen = () => {
   const navigate = useNavigate();
@@ -23,30 +24,28 @@ const PaymentScreen = () => {
     <div className="login-container">
       <form className="login-form" onSubmit={submitHandler}>
         <h1>Payment Method</h1>
-        <div className="form-group">
+        <div className="form-group payment-method-options">
           <label>Select Method</label>
-          <div className="radio-group">
+          <label className={`payment-option ${paymentMethod === 'UPI at Delivery' ? 'selected' : ''}`}>
             <input
               type="radio"
-              id="upi"
               name="paymentMethod"
               value="UPI at Delivery"
               checked={paymentMethod === 'UPI at Delivery'}
               onChange={(e) => setPaymentMethod(e.target.value)}
             />
-            <label htmlFor="upi">UPI at Delivery</label>
-          </div>
-          <div className="radio-group">
+            <span>🧾 UPI at Delivery</span>
+          </label>
+          <label className={`payment-option ${paymentMethod === 'Cash on Delivery' ? 'selected' : ''}`}>
             <input
               type="radio"
-              id="cod"
               name="paymentMethod"
               value="Cash on Delivery"
               checked={paymentMethod === 'Cash on Delivery'}
               onChange={(e) => setPaymentMethod(e.target.value)}
             />
-            <label htmlFor="cod">Cash on Delivery</label>
-          </div>
+            <span>💵 Cash on Delivery</span>
+          </label>
         </div>
         <button type="submit" className="login-button">Continue</button>
       </form>
