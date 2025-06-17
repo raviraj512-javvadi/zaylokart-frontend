@@ -7,21 +7,16 @@ import connectDB from './config/db.js';
 import productRoutes from './routes/productRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
-import uploadRoutes from './routes/uploadRoutes.js'; // <- Keep this
+import uploadRoutes from './routes/uploadRoutes.js';
 
-// Load environment variables
 dotenv.config();
-
-// Connect to MongoDB
 connectDB();
-
-// Initialize Express app
 const app = express();
 
-// --- ✅ CORS SETUP (only allow specific origins)
+// CORS setup
 const allowedOrigins = [
-  'https://zaylokart.netlify.app', // <-- Netlify frontend
-  'http://localhost:3000',         // <-- Local dev
+  'https://zaylokart.netlify.app',
+  'http://localhost:3000'
 ];
 
 app.use(cors({
@@ -32,29 +27,35 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true,
+  credentials: true
 }));
 
-// --- ✅ BODY PARSER
 app.use(express.json());
 
-// --- ✅ DEFAULT ROUTE
+// API routes
+app.use('/api/products', productRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/upload', uploadRoutes);
+
+const __dirname = path.resolve();
+app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+
 app.get('/', (req, res) => {
   res.send('API is running...');
 });
 
-// --- ✅ API ROUTES
-app.use('/api/products', productRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/upload', uploadRoutes); // <- Keep this
-
-// --- ✅ STATIC FILES (uploads)
-const __dirname = path.resolve();
-app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
-
-// --- ✅ START SERVER
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
+// Global 404
+app.use((req, res, next) => {
+  res.status(404).json({ message: 'Not Found' });
 });
+
+// Error middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  res.status(statusCode).json({ message: err.message });
+});
+
+const PORT = process.env.PORT || 5001;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
