@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard.jsx';
-import API_URL from '../apiConfig'; // Keep this since we now use it
+import API_URL from '../apiConfig'; // <-- IMPORT
 
 const HomeScreen = () => {
   const { category, keyword } = useParams();
@@ -12,16 +12,16 @@ const HomeScreen = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
+      setError(null);
       let url = '/api/products?';
-      if (keyword) {
-        url += `keyword=${keyword}`;
-      } else if (category) {
-        url += `category=${category}`;
-      }
-
+      if (keyword) { url += `keyword=${keyword}`; } 
+      else if (category) { url += `category=${category}`; }
       try {
-        const response = await fetch(`${API_URL}${url}`);
-        if (!response.ok) throw new Error('Network response was not ok');
+        const response = await fetch(`${API_URL}${url}`); // <-- UPDATE
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Network response was not ok');
+        }
         const data = await response.json();
         setProducts(data);
       } catch (e) {
@@ -33,40 +33,32 @@ const HomeScreen = () => {
     fetchProducts();
   }, [category, keyword]);
 
-  const pageTitle = keyword 
-    ? `Search Results for: "${keyword}"`
-    : category 
-      ? category.replace(/-/g, ' ').toUpperCase() 
-      : 'Featured Products';
+  const pageTitle = keyword ? `Search Results for: "${keyword}"` : (category ? category.replace(/-/g, ' ').toUpperCase() : 'Featured Products');
 
   return (
     <>
       {!category && !keyword && (
         <section className="hero-section">
           <h1 className="hero-title">Style Redefined</h1>
-          <p className="hero-subtitle">
-            Discover curated collections that blend modern trends with timeless comfort. Unmissable deals await.
-          </p>
-          <Link to="/" className="hero-button">EXPLORE THE COLLECTION</Link>
+          <p className="hero-subtitle">Discover curated collections that blend modern trends with timeless comfort. Unmissable deals await.</p>
+          <a href="#featured" className="hero-button">EXPLORE THE COLLECTION</a>
         </section>
       )}
-
-      <section className="featured-products-section main-content">
+      <section id="featured" className="featured-products-section">
         <h2 className="featured-title">{pageTitle}</h2>
         {loading && <div>Loading products...</div>}
-        {error && <div>Error: {error}</div>}
+        {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
         <div className="product-grid">
           {products.length > 0 ? (
-            products.map(product => (
+             products.map(product => (
               <ProductCard key={product._id} product={product} />
             ))
           ) : (
-            !loading && <p>No products found.</p>
+            !loading && !error && <p>No products found.</p>
           )}
         </div>
       </section>
     </>
   );
 };
-
 export default HomeScreen;
