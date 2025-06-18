@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom'; // <-- FIX: 'Link' has been removed from this line
 import ProductCard from '../components/ProductCard.jsx';
-import API_URL from '../apiConfig'; // <-- IMPORT
+import API_URL from '../apiConfig';
 
 const HomeScreen = () => {
   const { category, keyword } = useParams();
@@ -17,7 +17,7 @@ const HomeScreen = () => {
       if (keyword) { url += `keyword=${keyword}`; } 
       else if (category) { url += `category=${category}`; }
       try {
-        const response = await fetch(`${API_URL}${url}`); // <-- UPDATE
+        const response = await fetch(`${API_URL}${url}`);
         if (!response.ok) {
             const errorText = await response.text();
             throw new Error(errorText || 'Network response was not ok');
@@ -50,9 +50,9 @@ const HomeScreen = () => {
         {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
         <div className="product-grid">
           {products.length > 0 ? (
-             products.map(product => (
-              <ProductCard key={product._id} product={product} />
-            ))
+              products.map(product => (
+                <ProductCard key={product._id} product={product} />
+              ))
           ) : (
             !loading && !error && <p>No products found.</p>
           )}
@@ -61,4 +61,5 @@ const HomeScreen = () => {
     </>
   );
 };
+
 export default HomeScreen;
