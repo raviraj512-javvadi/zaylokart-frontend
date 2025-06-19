@@ -21,13 +21,17 @@ const addOrderItems = async (req, res) => {
       shippingAddress,
       paymentMethod,
       totalPrice,
-      isPaid: false, // Default for COD and placeholder
+      isPaid: false,
       paidAt: null,
     });
 
     const createdOrder = await order.save();
     res.status(201).json(createdOrder);
   } catch (error) {
+    // ======================= THIS IS THE FIX =======================
+    // This will print the detailed error to your Render logs
+    console.error('ERROR CREATING ORDER:', error); 
+    // =============================================================
     res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
