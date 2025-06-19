@@ -5,11 +5,6 @@ import Order from '../models/orderModel.js';
 // @access  Private
 const addOrderItems = async (req, res) => {
   try {
-    // ======================= NEW DEBUGGING LOGS =======================
-    console.log('USER FROM TOKEN:', req.user);
-    console.log('INCOMING ORDER BODY:', JSON.stringify(req.body, null, 2));
-    // ================================================================
-
     const { orderItems, shippingAddress, paymentMethod, totalPrice } = req.body;
 
     if (orderItems && orderItems.length === 0) {
@@ -17,11 +12,17 @@ const addOrderItems = async (req, res) => {
     }
 
     const order = new Order({
-      orderItems: orderItems.map(x => ({ 
-        ...x, 
-        product: x._id, 
-        _id: undefined 
+      // ======================= THIS IS THE FINAL FIX =======================
+      // We are now manually mapping the fields to ensure they match the database schema.
+      orderItems: orderItems.map(item => ({
+        name: item.name,
+        qty: item.qty,
+        image: item.imageUrl, // <-- This maps frontend 'imageUrl' to backend 'image'
+        price: item.price,
+        size: item.size,
+        product: item._id,     // This links to the original Product document
       })),
+      // =====================================================================
       user: req.user._id,
       shippingAddress,
       paymentMethod,
@@ -33,10 +34,12 @@ const addOrderItems = async (req, res) => {
     const createdOrder = await order.save();
     res.status(201).json(createdOrder);
   } catch (error) {
-    console.error('ERROR CREATING ORDER:', error);
+    // We will keep the error log here for future debugging.
+    console.error('ERROR CREATING ORDER:', error); 
     res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
+
 
 // --- The rest of your functions remain the same ---
 
