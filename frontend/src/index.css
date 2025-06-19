@@ -1,5 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+/* --- Independence Day Theme (Temporary) --- */
+/* To change the theme, you only need to edit the colors here! */
+:root {
+  --saffron-light: #FFDAB9; /* A pleasant, light saffron/peach color */
+  --green-light: #c1ffc1;   /* A nice, light but clear green */
+  --text-color: #1F2937;    /* A strong, dark grey for all text for readability */
+}
+
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -8,13 +17,25 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #ffffff;
-  color: #1a1a1a;
+  color: var(--text-color); /* Use the text color from our theme */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* --- This is the slanted gradient background --- */
+  background: linear-gradient(
+    135deg, /* This creates the slant from top-left to bottom-right */
+    var(--saffron-light),
+    #ffffff 40%,
+    #ffffff 60%,
+    var(--green-light)
+  );
+  
+  /* This ensures the gradient covers the whole screen and stays fixed when you scroll */
+  min-height: 100vh;
+  background-attachment: fixed;
 }
 
 a {
   text-decoration: none;
-  color: inherit;
+  color: inherit; /* This makes links use the body's text color */
 }
