@@ -100,6 +100,31 @@ main.main-content {
   background-color: #f3f3f3;
 }
 
+
+/* ------------------ HERO SECTION (HOMEPAGE) ------------------ */
+/* This is the new code block we are adding to fix the layout */
+
+.hero-section {
+  display: flex; /* Activates Flexbox for easy alignment */
+  flex-direction: column; /* Stacks the items vertically */
+  justify-content: center; /* Centers everything vertically */
+  align-items: center; /* Centers everything horizontally */
+  text-align: center; /* Ensures text is centered if it wraps */
+  min-height: 50vh; /* Gives the section a nice amount of space */
+  padding: 2rem; /* Adds some space around the content */
+}
+
+/* These styles already existed but we ensure they are here */
+.hero-title {
+  margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+  margin-bottom: 2rem;
+  max-width: 500px;
+}
+
+
 /* ------------------ FOOTER ------------------ */
 
 .footer {
