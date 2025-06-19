@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom'; // <-- FIX: 'Link' has been removed from this line
+import { useParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard.jsx';
 import API_URL from '../apiConfig';
+
+// ======================= THIS IS THE FINAL FIX =======================
+// This line imports the CSS file and applies all the grid styles.
+import '../ProductGrid.css'; 
+// =====================================================================
 
 const HomeScreen = () => {
   const { category, keyword } = useParams();
