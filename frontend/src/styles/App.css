@@ -102,19 +102,19 @@ main.main-content {
 
 
 /* ------------------ HERO SECTION (HOMEPAGE) ------------------ */
-/* This is the new code block we are adding to fix the layout */
+/* This section has been updated */
 
 .hero-section {
-  display: flex; /* Activates Flexbox for easy alignment */
-  flex-direction: column; /* Stacks the items vertically */
-  justify-content: center; /* Centers everything vertically */
-  align-items: center; /* Centers everything horizontally */
-  text-align: center; /* Ensures text is centered if it wraps */
-  min-height: 50vh; /* Gives the section a nice amount of space */
-  padding: 2rem; /* Adds some space around the content */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 50vh;
+  padding: 4rem 2rem; /* Increased padding */
+  background-color: rgba(0, 0, 0, 0.03); /* Added the light grey background */
 }
 
-/* These styles already existed but we ensure they are here */
 .hero-title {
   margin-bottom: 1rem;
 }
@@ -122,6 +122,25 @@ main.main-content {
 .hero-subtitle {
   margin-bottom: 2rem;
   max-width: 500px;
+}
+
+/* Added new styles for the button to make it look premium */
+.hero-button {
+  background-color: #222;
+  color: white;
+  padding: 1rem 2.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.hero-button:hover {
+  background-color: #000;
+  transform: scale(1.05);
 }
 
 

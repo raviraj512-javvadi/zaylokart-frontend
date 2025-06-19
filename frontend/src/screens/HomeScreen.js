@@ -2,11 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard.jsx';
 import API_URL from '../apiConfig';
-
-// ======================= THIS IS THE FINAL FIX =======================
-// This line imports the CSS file and applies all the grid styles.
-import '../ProductGrid.css'; 
-// =====================================================================
+import '../ProductGrid.css';
 
 const HomeScreen = () => {
   const { category, keyword } = useParams();
@@ -50,7 +46,11 @@ const HomeScreen = () => {
         </section>
       )}
       <section id="featured" className="featured-products-section">
-        <h2 className="featured-title">{pageTitle}</h2>
+        {/* I have added the style here to center the text */}
+        <h2 className="featured-title" style={{ textAlign: 'center' }}>
+          {pageTitle}
+        </h2>
+        
         {loading && <div>Loading products...</div>}
         {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
         <div className="product-grid">
