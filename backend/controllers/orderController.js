@@ -5,6 +5,11 @@ import Order from '../models/orderModel.js';
 // @access  Private
 const addOrderItems = async (req, res) => {
   try {
+    // ======================= NEW DEBUGGING LOGS =======================
+    console.log('USER FROM TOKEN:', req.user);
+    console.log('INCOMING ORDER BODY:', JSON.stringify(req.body, null, 2));
+    // ================================================================
+
     const { orderItems, shippingAddress, paymentMethod, totalPrice } = req.body;
 
     if (orderItems && orderItems.length === 0) {
@@ -28,25 +33,18 @@ const addOrderItems = async (req, res) => {
     const createdOrder = await order.save();
     res.status(201).json(createdOrder);
   } catch (error) {
-    // ======================= THIS IS THE FIX =======================
-    // This will print the detailed error to your Render logs
-    console.error('ERROR CREATING ORDER:', error); 
-    // =============================================================
+    console.error('ERROR CREATING ORDER:', error);
     res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
 
-// @desc    Get logged in user's orders
-// @route   GET /api/orders/myorders
-// @access  Private
+// --- The rest of your functions remain the same ---
+
 const getMyOrders = async (req, res) => {
   const orders = await Order.find({ user: req.user._id });
   res.status(200).json(orders);
 };
 
-// @desc    Get order by ID
-// @route   GET /api/orders/:id
-// @access  Private
 const getOrderById = async (req, res) => {
   const order = await Order.findById(req.params.id).populate('user', 'name email');
   
@@ -57,9 +55,6 @@ const getOrderById = async (req, res) => {
   }
 };
 
-// @desc    Update order to delivered
-// @route   PUT /api/orders/:id/deliver
-// @access  Private/Admin
 const updateOrderToDelivered = async (req, res) => {
   const order = await Order.findById(req.params.id);
 
@@ -73,14 +68,10 @@ const updateOrderToDelivered = async (req, res) => {
   }
 };
 
-// @desc    Get all orders
-// @route   GET /api/orders
-// @access  Private/Admin
 const getOrders = async (req, res) => {
   const orders = await Order.find({}).populate('user', 'id name');
   res.json(orders);
 };
-
 
 export {
   addOrderItems,
