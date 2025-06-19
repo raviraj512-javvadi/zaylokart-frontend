@@ -13,23 +13,22 @@ dotenv.config();
 connectDB();
 const app = express();
 
-// ======================= START: CORS CONFIGURATION =======================
-// This block will work for your main site and ANY Netlify deploy preview URL.
+// ======================= START: UPDATED CORS CONFIGURATION =======================
 app.use(cors({
   origin: function (origin, callback) {
-    // Define allowed origins. The regex handles all URLs ending in --zaylokart.netlify.app
+    // --- ADD THIS LINE FOR DEBUGGING ---
+    console.log('Incoming Origin:', origin); 
+
     const allowedOrigins = [
-      'https://zaylokart.netlify.app',     // Your main site
-      'http://localhost:3000',             // Your local dev environment
-      /--zaylokart\.netlify\.app$/         // Regex to match any Netlify deploy preview
+      'https://zaylokart.netlify.app',
+      'http://localhost:3000',
+      /--zaylokart\.netlify\.app$/
     ];
 
-    // Allow requests with no origin (like Postman, mobile apps, etc.)
     if (!origin) {
       return callback(null, true);
     }
 
-    // Check if the incoming origin is in our allowed list
     const isAllowed = allowedOrigins.some(allowedOrigin => {
       if (typeof allowedOrigin === 'string') {
         return origin === allowedOrigin;
@@ -48,7 +47,7 @@ app.use(cors({
   },
   credentials: true
 }));
-// ======================== END: CORS CONFIGURATION ========================
+// ======================== END: UPDATED CORS CONFIGURATION ========================
 
 app.use(express.json());
 
