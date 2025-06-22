@@ -4,9 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { CheckCircle } from 'lucide-react';
 import API_URL from '../apiConfig';
 import './OrderSuccessScreen.css';
-// --- I will assume your QR code image is placed in this path ---
-// --- You will need to add your QR image to the `frontend/public/images` folder ---
-import qrCodeImage from '/images/your-qr-code.png'; // <-- IMPORTANT: UPDATE THIS PATH
+// --- DELETED THIS LINE ---
+// We no longer import the image directly.
 
 const OrderSuccessScreen = () => {
   const { id: orderId } = useParams();
@@ -82,7 +81,9 @@ const OrderSuccessScreen = () => {
             ) : (
                 <div className="qr-payment">
                     <p>Please scan the QR code below using any UPI app to complete your payment. Mention your Order ID in the notes.</p>
-                    <img src={qrCodeImage} alt="UPI QR Code" className="qr-code-image" />
+                    {/* --- UPDATED THIS LINE --- */}
+                    {/* We now use a direct string path to the image in the public folder. */}
+                    <img src="/images/your-qr-code.png" alt="UPI QR Code" className="qr-code-image" />
                 </div>
             )}
         </div>
