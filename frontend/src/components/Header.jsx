@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react'; // Removed useEffect and useRef
 import { Link, useNavigate } from 'react-router-dom';
 import { User, ShoppingBag } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -10,9 +10,8 @@ const Header = () => {
   const { cartItems } = useCart();
   const navigate = useNavigate();
 
-  // State to manage which dropdown is open
+  // State to manage which dropdown is open ('admin', 'profile', or null)
   const [openDropdown, setOpenDropdown] = useState(null);
-  const dropdownRef = useRef(null);
 
   const logoutHandler = () => {
     logout();
@@ -22,33 +21,11 @@ const Header = () => {
 
   const cartItemCount = cartItems ? cartItems.reduce((acc, item) => acc + item.qty, 0) : 0;
   
-  // This function handles opening and closing the dropdowns
-  const handleDropdownToggle = (menuName) => {
-    if (openDropdown === menuName) {
-      setOpenDropdown(null); // Close if already open
-    } else {
-      setOpenDropdown(menuName); // Open the clicked one
-    }
+  // This function cleanly toggles the dropdowns
+  const toggleDropdown = (menu) => {
+    // If the clicked menu is already open, close it. Otherwise, open the clicked menu.
+    setOpenDropdown(prev => (prev === menu ? null : menu));
   };
-
-  // This effect handles closing the dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      // Check if the click is outside the dropdownRef element
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setOpenDropdown(null);
-      }
-    };
-    // Add event listener when a dropdown is open
-    if (openDropdown) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    // Clean up the event listener
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [openDropdown]);
-
 
   return (
     <header className="header">
@@ -66,32 +43,36 @@ const Header = () => {
         <SearchBox />
 
         {userInfo && userInfo.isAdmin && (
-          // We pass the ref to the parent div of the dropdowns
-          <div className="dropdown" ref={dropdownRef}>
-            <button className="icon-button" style={{ fontWeight: 'bold' }} onClick={() => handleDropdownToggle('admin')}>
+          <div className="dropdown">
+            {/* The button now toggles the 'admin' dropdown */}
+            <button className="icon-button" style={{ fontWeight: 'bold' }} onClick={() => toggleDropdown('admin')}>
               Admin
             </button>
-            {/* The dropdown content is now rendered based on state */}
-            <div className={`dropdown-content ${openDropdown === 'admin' ? 'open' : ''}`}>
-              <Link to="/admin/productlist" onClick={() => setOpenDropdown(null)}>Products</Link>
-              <Link to="/admin/orderlist" onClick={() => setOpenDropdown(null)}>Orders</Link>
-              <Link to="/admin/userlist" onClick={() => setOpenDropdown(null)}>Users</Link>
-            </div>
+            {/* The dropdown content only shows if the state is 'admin' */}
+            {openDropdown === 'admin' && (
+              <div className="dropdown-content">
+                <Link to="/admin/productlist">Products</Link>
+                <Link to="/admin/orderlist">Orders</Link>
+                <Link to="/admin/userlist">Users</Link>
+              </div>
+            )}
           </div>
         )}
 
         {userInfo ? (
-          // We pass the ref to the parent div of the dropdowns
-          <div className="dropdown" ref={dropdownRef}>
-            <button className="icon-button" onClick={() => handleDropdownToggle('profile')}>
+          <div className="dropdown">
+            {/* The button now toggles the 'profile' dropdown */}
+            <button className="icon-button" onClick={() => toggleDropdown('profile')}>
               <User size={20} />
             </button>
-            {/* The dropdown content is now rendered based on state */}
-            <div className={`dropdown-content ${openDropdown === 'profile' ? 'open' : ''}`}>
-              <Link to="/profile" onClick={() => setOpenDropdown(null)}>Profile</Link>
-              <Link to="/wishlist" onClick={() => setOpenDropdown(null)}>My Wishlist</Link>
-              <button onClick={logoutHandler}>Logout</button>
-            </div>
+            {/* The dropdown content only shows if the state is 'profile' */}
+            {openDropdown === 'profile' && (
+              <div className="dropdown-content">
+                <Link to="/profile">Profile</Link>
+                <Link to="/wishlist">My Wishlist</Link>
+                <button onClick={logoutHandler}>Logout</button>
+              </div>
+            )}
           </div>
         ) : (
           <Link to="/login" className="icon-button"><User size={20} /></Link>
