@@ -1,5 +1,3 @@
-// This is the full content for backend/controllers/orderController.js
-
 import asyncHandler from 'express-async-handler';
 import Order from '../models/orderModel.js';
 
@@ -20,8 +18,7 @@ const addOrderItems = asyncHandler(async (req, res) => {
         image: item.imageUrl,
         price: item.price,
         size: item.size,
-        // This line is the critical fix
-        product: item.product, 
+        product: item.product,
       })),
       user: req.user._id,
       shippingAddress,
@@ -84,7 +81,7 @@ const getOrders = asyncHandler(async (req, res) => {
 export {
   addOrderItems,
   getMyOrders,
-  getOrderById,
+  getOrderById, // Ensure this is exported
   updateOrderToDelivered,
   getOrders
 };

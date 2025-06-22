@@ -1,17 +1,23 @@
 import express from 'express';
 import { protect } from '../middleware/authMiddleware.js';
-import { addOrderItems, getMyOrders } from '../controllers/orderController.js';
-
-// --- PROOF OF LIFE TEST ---
-console.log('✅✅✅ ORDER ROUTES FILE LOADED - v2 ✅✅✅');
-// --------------------------
+// Make sure all needed functions are imported
+import { 
+  addOrderItems, 
+  getMyOrders, 
+  getOrderById 
+} from '../controllers/orderController.js';
 
 const router = express.Router();
 
-// This route creates new orders
+// Route to create a new order
 router.route('/').post(protect, addOrderItems);
 
-// This route gets the logged-in user's orders
+// Route to get the logged-in user's orders
 router.route('/myorders').get(protect, getMyOrders);
+
+// --- THIS IS THE NEW ROUTE WE ARE ADDING ---
+// Route to get a single order by its ID
+router.route('/:id').get(protect, getOrderById);
+// ---------------------------------------------
 
 export default router;
