@@ -1,25 +1,25 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import './LoginScreen.css'; // Reuse login screen styles
+import './LoginScreen.css'; // It's okay to reuse styles
 
 const ShippingScreen = () => {
   const { shippingAddress, saveShippingAddress } = useCart();
   const navigate = useNavigate();
 
-  // Pre-fill form with data from context/localStorage, or use empty strings
-  const [address, setAddress] = useState(shippingAddress.address || '');
-  const [city, setCity] = useState(shippingAddress.city || '');
-  const [postalCode, setPostalCode] = useState(shippingAddress.postalCode || '');
-  const [country, setCountry] = useState(shippingAddress.country || '');
+  // FIX: Safely initialize state to prevent crash if shippingAddress is empty on load
+  const [address, setAddress] = useState(shippingAddress?.address || '');
+  const [city, setCity] = useState(shippingAddress?.city || '');
+  const [postalCode, setPostalCode] = useState(shippingAddress?.postalCode || '');
+  const [country, setCountry] = useState(shippingAddress?.country || '');
 
- // ... inside ShippingScreen.js
-const submitHandler = (e) => {
+  const submitHandler = (e) => {
     e.preventDefault();
     saveShippingAddress({ address, city, postalCode, country });
-    navigate('/placeorder'); // Change this line
+    // UPDATE: Navigate to the payment screen next, as per your plan
+    navigate('/payment');
   };
-// ...
+  
   return (
     <div className="login-container">
       <form className="login-form" onSubmit={submitHandler}>
@@ -40,7 +40,7 @@ const submitHandler = (e) => {
           <label>Country</label>
           <input type="text" value={country} onChange={(e) => setCountry(e.target.value)} required />
         </div>
-        <button type="submit" className="login-button">Continue</button>
+        <button type="submit" className="login-button">Continue to Payment</button>
       </form>
     </div>
   );
