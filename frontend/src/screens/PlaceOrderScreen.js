@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react'; // Import useEffect
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -6,18 +6,28 @@ import API_URL from '../apiConfig';
 import './PlaceOrderScreen.css';
 
 const PlaceOrderScreen = () => {
-  const { cartItems, shippingAddress, paymentMethod, clearCart } = useCart(); // Use clearCart
+  const { cartItems, shippingAddress, paymentMethod, clearCart } = useCart();
   const { userInfo } = useAuth();
   const navigate = useNavigate();
 
+  // --- FIX: Add checks to redirect user if shipping or payment info is missing ---
+  // This prevents the component from crashing on render.
+  useEffect(() => {
+    if (!shippingAddress?.address) {
+      navigate('/shipping');
+    } else if (!paymentMethod) {
+      navigate('/payment');
+    }
+  }, [shippingAddress, paymentMethod, navigate]);
+  // --------------------------------------------------------------------------
+
+  // These calculations are safe now because of the check above
   const itemsPrice = cartItems.reduce((acc, item) => acc + Number(item.qty) * Number(item.price), 0);
   const shippingPrice = 49;
   const totalPrice = itemsPrice + shippingPrice;
 
-  // --- THIS IS THE FINAL, UPDATED LOGIC ---
   const placeOrderHandler = async () => {
     try {
-      // 1. Send the order details to your backend to save in the database
       const res = await fetch(`${API_URL}/api/orders`, {
         method: 'POST',
         headers: {
@@ -29,8 +39,6 @@ const PlaceOrderScreen = () => {
           shippingAddress,
           paymentMethod,
           totalPrice,
-          isPaid: false, // For COD/UPI at Delivery, this is always false initially
-          paidAt: null,
         }),
       });
       
@@ -39,17 +47,16 @@ const PlaceOrderScreen = () => {
         throw new Error(createdOrder.message || 'Could not place order');
       }
       
-      // 2. Clear the cart from local storage now that the order is placed
       clearCart();
-
-      // 3. Redirect the user to the new "Order Success" page with the new Order ID
-      navigate(`/order/success/${createdOrder._id}`);
-
+      
+      // We will create this success page next
+      navigate(`/order/${createdOrder._id}`); 
     } catch (error) {
       alert(`Error: ${error.message}`);
     }
   };
 
+  // Because of the useEffect check, we can be sure shippingAddress exists here
   return (
     <div className="placeorder-container">
       <div className="placeorder-details">
@@ -61,7 +68,6 @@ const PlaceOrderScreen = () => {
           </p>
         </div>
 
-        {/* This section now shows the chosen payment method */}
         <div className="placeorder-section">
           <h2>Payment Method</h2>
           <p>
@@ -77,13 +83,14 @@ const PlaceOrderScreen = () => {
           ) : (
             <div className="order-items-list">
               {cartItems.map((item) => (
-                <div key={item.cartId} className="order-item">
+                <div key={item.product} className="order-item"> {/* Use item.product for key */}
+                  {/* FIX: Removed API_URL from image source */}
                   <img
-                    src={`${API_URL}${item.imageUrl}`}
+                    src={item.imageUrl}
                     alt={item.name}
                     className="order-item-image"
                   />
-                  <Link to={`/product/${item._id}`} className="order-item-name">
+                  <Link to={`/product/${item.product}`} className="order-item-name">
                     {item.name} ({item.size})
                   </Link>
                   <div className="order-item-summary">
