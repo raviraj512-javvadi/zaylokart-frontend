@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react'; // <-- import useCallback
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ShieldCheck, ShieldX, Eye, Truck } from 'lucide-react'; // <-- import Truck icon
+// --- Import the new icon ---
+import { ShieldCheck, ShieldX, Eye, Truck, IndianRupee } from 'lucide-react'; 
 import API_URL from '../apiConfig';
 import './OrderListScreen.css';
 
@@ -12,7 +13,6 @@ const OrderListScreen = () => {
   const { userInfo } = useAuth();
   const navigate = useNavigate();
 
-  // We define fetchOrders here so it can be called from multiple places
   const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
@@ -33,7 +33,7 @@ const OrderListScreen = () => {
     } finally {
       setLoading(false);
     }
-  }, [userInfo]); // <-- Add userInfo as a dependency
+  }, [userInfo]);
 
   useEffect(() => {
     if (userInfo && userInfo.isAdmin) {
@@ -44,7 +44,6 @@ const OrderListScreen = () => {
   }, [userInfo, navigate, fetchOrders]);
 
 
-  // --- THIS IS THE NEW FUNCTION TO HANDLE THE UPDATE ---
   const markAsDeliveredHandler = async (orderId) => {
     if (window.confirm('Are you sure you want to mark this order as delivered?')) {
       try {
@@ -54,10 +53,26 @@ const OrderListScreen = () => {
             Authorization: `Bearer ${userInfo.token}`,
           },
         });
-        // After updating, refresh the list of orders to show the change
         fetchOrders(); 
       } catch (err) {
-        alert('Error updating order.');
+        alert('Error updating order to delivered.');
+      }
+    }
+  };
+
+  // --- THIS IS THE NEW FUNCTION FOR MARKING AS PAID ---
+  const markAsPaidHandler = async (orderId) => {
+    if (window.confirm('Are you sure you want to mark this order as paid?')) {
+      try {
+        await fetch(`${API_URL}/api/orders/${orderId}/pay`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${userInfo.token}`,
+          },
+        });
+        fetchOrders(); // Refresh the list to show the change
+      } catch (err) {
+        alert('Error updating order to paid.');
       }
     }
   };
@@ -110,14 +125,19 @@ const OrderListScreen = () => {
                     <Link to={`/order/success/${order._id}`} className="icon-btn" title="View Details">
                       <Eye size={18} />
                     </Link>
-                    {/* --- THIS IS THE NEW BUTTON --- */}
-                    {/* It only shows if the order is NOT already delivered */}
+
+                    {/* --- THIS IS THE NEW "MARK AS PAID" BUTTON --- */}
+                    {!order.isPaid && (
+                      <button className="icon-btn" title="Mark as Paid" onClick={() => markAsPaidHandler(order._id)}>
+                        <IndianRupee size={18} />
+                      </button>
+                    )}
+
                     {!order.isDelivered && (
                       <button className="icon-btn" title="Mark as Delivered" onClick={() => markAsDeliveredHandler(order._id)}>
                         <Truck size={18} />
                       </button>
                     )}
-                    {/* ----------------------------- */}
                   </div>
                 </td>
               </tr>

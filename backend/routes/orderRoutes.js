@@ -7,7 +7,8 @@ import {
   getMyOrders, 
   getOrderById,
   getOrders,
-  updateOrderToDelivered // <-- Added this import
+  updateOrderToDelivered,
+  updateOrderToPaid // <-- Added this import
 } from '../controllers/orderController.js';
 
 const router = express.Router();
@@ -23,9 +24,12 @@ router.route('/myorders').get(protect, getMyOrders);
 // GET a single order by its ID
 router.route('/:id').get(protect, getOrderById);
 
-// --- THIS IS THE NEW ROUTE WE ARE ADDING ---
 // PUT to update an order to delivered (Admin only)
 router.route('/:id/deliver').put(protect, admin, updateOrderToDelivered);
-// ---------------------------------------------
+
+// --- THIS IS THE NEW ROUTE FOR PAYMENT ---
+// PUT to update an order to paid (Admin only)
+router.route('/:id/pay').put(protect, admin, updateOrderToPaid);
+// -----------------------------------------
 
 export default router;
