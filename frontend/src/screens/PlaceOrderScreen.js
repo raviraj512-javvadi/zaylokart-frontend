@@ -3,19 +3,14 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import API_URL from '../apiConfig';
-import './PlaceOrderScreen.css'; // Make sure you have this CSS file
+import './PlaceOrderScreen.css';
 
 const PlaceOrderScreen = () => {
   const { cartItems, shippingAddress, paymentMethod, clearCart } = useCart();
   const { userInfo } = useAuth();
   const navigate = useNavigate();
 
-  // --- Temporary Debugging Line ---
-  // This will tell us in the browser console what data is missing.
-  console.log('DATA CHECK:', { shippingAddress, paymentMethod, cartItems });
-
   useEffect(() => {
-    // This logic ensures users don't skip steps
     if (!shippingAddress?.address) {
       navigate('/shipping');
     } else if (!paymentMethod) {
@@ -23,12 +18,10 @@ const PlaceOrderScreen = () => {
     }
   }, [shippingAddress, paymentMethod, navigate]);
 
-  // This guard clause prevents the page from crashing if data is missing
   if (!cartItems || !shippingAddress?.address || !paymentMethod) {
-    return <div>Loading...</div>; // Show loading text instead of a blank page
+    return <div>Loading...</div>;
   }
 
-  // All calculations are safe now
   const itemsPrice = cartItems.reduce((acc, item) => acc + Number(item.qty) * Number(item.price), 0);
   const shippingPrice = 49;
   const totalPrice = itemsPrice + shippingPrice;
@@ -55,8 +48,9 @@ const PlaceOrderScreen = () => {
       }
       
       clearCart();
-      // After placing the order, navigate to the new order's details page
-      navigate(`/order/${createdOrder._id}`); 
+      
+      // THE FINAL FIX IS HERE: The path now matches your App.js route
+      navigate(`/order/success/${createdOrder._id}`); 
     } catch (error) {
       alert(`Error: ${error.message}`);
     }
