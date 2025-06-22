@@ -1,3 +1,5 @@
+// This is the full content for backend/controllers/orderController.js
+
 import asyncHandler from 'express-async-handler';
 import Order from '../models/orderModel.js';
 
@@ -18,10 +20,8 @@ const addOrderItems = asyncHandler(async (req, res) => {
         image: item.imageUrl,
         price: item.price,
         size: item.size,
-        // ============= THIS IS THE FINAL FIX =============
-        // The ID is in 'item.product', not 'item._id'.
+        // This line is the critical fix
         product: item.product, 
-        // =================================================
       })),
       user: req.user._id,
       shippingAddress,
@@ -34,13 +34,17 @@ const addOrderItems = asyncHandler(async (req, res) => {
   }
 });
 
-// --- The rest of your functions are correct ---
-
+// @desc    Get logged in user's orders
+// @route   GET /api/orders/myorders
+// @access  Private
 const getMyOrders = asyncHandler(async (req, res) => {
   const orders = await Order.find({ user: req.user._id });
   res.status(200).json(orders);
 });
 
+// @desc    Get order by ID
+// @route   GET /api/orders/:id
+// @access  Private
 const getOrderById = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id).populate('user', 'name email');
   
@@ -52,6 +56,9 @@ const getOrderById = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Update order to delivered
+// @route   PUT /api/orders/:id/deliver
+// @access  Private/Admin
 const updateOrderToDelivered = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id);
 
@@ -66,6 +73,9 @@ const updateOrderToDelivered = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Get all orders
+// @route   GET /api/orders
+// @access  Private/Admin
 const getOrders = asyncHandler(async (req, res) => {
   const orders = await Order.find({}).populate('user', 'id name');
   res.json(orders);
