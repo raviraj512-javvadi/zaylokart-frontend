@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'; // Import useEffect
+import React, { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -10,18 +10,30 @@ const PlaceOrderScreen = () => {
   const { userInfo } = useAuth();
   const navigate = useNavigate();
 
-  // --- FIX: Add checks to redirect user if shipping or payment info is missing ---
-  // This prevents the component from crashing on render.
   useEffect(() => {
+    // This effect ensures that if a user lands on this page by mistake,
+    // they are sent back to the correct step.
     if (!shippingAddress?.address) {
       navigate('/shipping');
     } else if (!paymentMethod) {
       navigate('/payment');
     }
   }, [shippingAddress, paymentMethod, navigate]);
-  // --------------------------------------------------------------------------
 
-  // These calculations are safe now because of the check above
+
+  // ======================= THE DEFINITIVE FIX =======================
+  // This is a "guard clause". It stops the component from rendering
+  // anything until all the required data has been loaded from the context.
+  // This prevents any "cannot read property of null" crashes.
+  if (!cartItems || !shippingAddress?.address || !paymentMethod) {
+    // You can show a loading spinner here, but returning null is the cleanest way
+    // to prevent a crash, as the useEffect above will redirect instantly.
+    return null;
+  }
+  // ====================================================================
+
+
+  // All calculations below are now 100% safe because of the guard clause above.
   const itemsPrice = cartItems.reduce((acc, item) => acc + Number(item.qty) * Number(item.price), 0);
   const shippingPrice = 49;
   const totalPrice = itemsPrice + shippingPrice;
@@ -49,14 +61,14 @@ const PlaceOrderScreen = () => {
       
       clearCart();
       
-      // We will create this success page next
+      // Navigate to the order details page upon success
       navigate(`/order/${createdOrder._id}`); 
     } catch (error) {
       alert(`Error: ${error.message}`);
     }
   };
 
-  // Because of the useEffect check, we can be sure shippingAddress exists here
+  // The JSX below is now 100% safe to render.
   return (
     <div className="placeorder-container">
       <div className="placeorder-details">
@@ -83,8 +95,7 @@ const PlaceOrderScreen = () => {
           ) : (
             <div className="order-items-list">
               {cartItems.map((item) => (
-                <div key={item.product} className="order-item"> {/* Use item.product for key */}
-                  {/* FIX: Removed API_URL from image source */}
+                <div key={item.product} className="order-item">
                   <img
                     src={item.imageUrl}
                     alt={item.name}
