@@ -71,7 +71,7 @@ main.main-content {
 }
 
 .dropdown-content {
-  display: none;
+  display: none; /* Hidden by default */
   position: absolute;
   top: 120%;
   right: 0;
@@ -80,10 +80,12 @@ main.main-content {
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
   z-index: 10;
   flex-direction: column;
+  border-radius: 4px; /* Optional: adds nice rounded corners */
 }
 
-.dropdown:hover .dropdown-content {
-  display: flex;
+/* This rule is now controlled by React, so the hover rule is removed */
+.dropdown-content.open {
+  display: flex; /* We will add the 'open' class with React */
 }
 
 .dropdown-content a, .dropdown-content button {
@@ -102,8 +104,6 @@ main.main-content {
 
 
 /* ------------------ HERO SECTION (HOMEPAGE) ------------------ */
-/* This section has been updated */
-
 .hero-section {
   display: flex;
   flex-direction: column;
@@ -111,8 +111,8 @@ main.main-content {
   align-items: center;
   text-align: center;
   min-height: 50vh;
-  padding: 4rem 2rem; /* Increased padding */
-  background-color: rgba(0, 0, 0, 0.03); /* Added the light grey background */
+  padding: 4rem 2rem;
+  background-color: rgba(0, 0, 0, 0.03);
 }
 
 .hero-title {
@@ -124,7 +124,6 @@ main.main-content {
   max-width: 500px;
 }
 
-/* Added new styles for the button to make it look premium */
 .hero-button {
   background-color: #222;
   color: white;
@@ -145,7 +144,6 @@ main.main-content {
 
 
 /* ------------------ FOOTER ------------------ */
-
 .footer {
   background-color: #111;
   color: #ccc;
@@ -192,7 +190,6 @@ main.main-content {
 }
 
 /* ------------------ RESPONSIVE ------------------ */
-
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
