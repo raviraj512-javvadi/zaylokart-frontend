@@ -3,16 +3,19 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import API_URL from '../apiConfig';
-import './PlaceOrderScreen.css';
+import './PlaceOrderScreen.css'; // Make sure you have this CSS file
 
 const PlaceOrderScreen = () => {
   const { cartItems, shippingAddress, paymentMethod, clearCart } = useCart();
   const { userInfo } = useAuth();
   const navigate = useNavigate();
 
+  // --- Temporary Debugging Line ---
+  // This will tell us in the browser console what data is missing.
+  console.log('DATA CHECK:', { shippingAddress, paymentMethod, cartItems });
+
   useEffect(() => {
-    // This effect ensures that if a user lands on this page by mistake,
-    // they are sent back to the correct step.
+    // This logic ensures users don't skip steps
     if (!shippingAddress?.address) {
       navigate('/shipping');
     } else if (!paymentMethod) {
@@ -20,20 +23,12 @@ const PlaceOrderScreen = () => {
     }
   }, [shippingAddress, paymentMethod, navigate]);
 
-
-  // ======================= THE DEFINITIVE FIX =======================
-  // This is a "guard clause". It stops the component from rendering
-  // anything until all the required data has been loaded from the context.
-  // This prevents any "cannot read property of null" crashes.
+  // This guard clause prevents the page from crashing if data is missing
   if (!cartItems || !shippingAddress?.address || !paymentMethod) {
-    // You can show a loading spinner here, but returning null is the cleanest way
-    // to prevent a crash, as the useEffect above will redirect instantly.
-    return null;
+    return <div>Loading...</div>; // Show loading text instead of a blank page
   }
-  // ====================================================================
 
-
-  // All calculations below are now 100% safe because of the guard clause above.
+  // All calculations are safe now
   const itemsPrice = cartItems.reduce((acc, item) => acc + Number(item.qty) * Number(item.price), 0);
   const shippingPrice = 49;
   const totalPrice = itemsPrice + shippingPrice;
@@ -60,15 +55,13 @@ const PlaceOrderScreen = () => {
       }
       
       clearCart();
-      
-      // Navigate to the order details page upon success
+      // After placing the order, navigate to the new order's details page
       navigate(`/order/${createdOrder._id}`); 
     } catch (error) {
       alert(`Error: ${error.message}`);
     }
   };
 
-  // The JSX below is now 100% safe to render.
   return (
     <div className="placeorder-container">
       <div className="placeorder-details">
@@ -136,7 +129,7 @@ const PlaceOrderScreen = () => {
           disabled={cartItems.length === 0}
           onClick={placeOrderHandler}
         >
-          Place Order
+          Confirm Place Order
         </button>
       </div>
     </div>
