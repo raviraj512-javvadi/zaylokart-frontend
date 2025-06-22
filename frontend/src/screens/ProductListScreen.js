@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import { useAuth } from '../context/AuthContext';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, PlusCircle } from 'lucide-react';
 import API_URL from '../apiConfig';
+import './ProductListScreen.css'; // Import the new CSS file
 
 const ProductListScreen = () => {
     const [products, setProducts] = useState([]);
@@ -58,38 +58,44 @@ const ProductListScreen = () => {
     };
 
     return (
-        <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h1>Products</h1>
-                <button onClick={createProductHandler} style={{ padding: '0.5rem 1rem' }}>Create Product</button>
+        <div className="admin-screen-container">
+            <div className="admin-header">
+                <h1 className="admin-title">Products</h1>
+                <button onClick={createProductHandler} className="primary-button">
+                    <PlusCircle size={20} /> Create Product
+                </button>
             </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
-                <thead>
-                    <tr style={{ borderBottom: '2px solid #ddd' }}>
-                        <th style={{ padding: '8px', textAlign: 'left' }}>ID</th>
-                        <th style={{ padding: '8px', textAlign: 'left' }}>NAME</th>
-                        <th style={{ padding: '8px', textAlign: 'left' }}>PRICE</th>
-                        <th style={{ padding: '8px', textAlign: 'left' }}>CATEGORY</th>
-                        <th style={{ padding: '8px', textAlign: 'left' }}>BRAND</th>
-                        <th style={{ padding: '8px' }}></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {products.map(product => (
-                        <tr key={product._id} style={{ borderBottom: '1px solid #eee' }}>
-                            <td style={{ padding: '8px' }}>{product._id}</td>
-                            <td style={{ padding: '8px' }}>{product.name}</td>
-                            <td style={{ padding: '8px' }}>₹{product.price.toLocaleString('en-IN')}</td>
-                            <td style={{ padding: '8px' }}>{product.category}</td>
-                            <td style={{ padding: '8px' }}>{product.brand}</td>
-                            <td style={{ padding: '8px', display: 'flex', gap: '1rem' }}>
-                                <button onClick={() => navigate(`/admin/product/${product._id}/edit`)}><Edit size={16} /></button>
-                                <button onClick={() => deleteHandler(product._id)}><Trash2 size={16} /></button>
-                            </td>
+            <div className="admin-table-container">
+                <table className="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>NAME</th>
+                            <th>PRICE</th>
+                            <th>CATEGORY</th>
+                            <th>BRAND</th>
+                            <th>ACTIONS</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {products.map(product => (
+                            <tr key={product._id}>
+                                <td>{product._id}</td>
+                                <td>{product.name}</td>
+                                <td>₹{product.price.toLocaleString('en-IN')}</td>
+                                <td>{product.category}</td>
+                                <td>{product.brand}</td>
+                                <td>
+                                    <div className="action-buttons">
+                                        <button className="icon-btn" onClick={() => navigate(`/admin/product/${product._id}/edit`)}><Edit size={18} /></button>
+                                        <button className="icon-btn-danger" onClick={() => deleteHandler(product._id)}><Trash2 size={18} /></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };
