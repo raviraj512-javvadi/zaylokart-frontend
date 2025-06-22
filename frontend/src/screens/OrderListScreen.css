@@ -1,0 +1,83 @@
+/* Using the same class names as ProductListScreen for a consistent admin UI */
+.admin-screen-container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 2rem auto;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.admin-title {
+    font-size: 2rem;
+    color: #1f2937;
+}
+
+.admin-table-container {
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap; /* Prevents text from wrapping */
+}
+
+.admin-table td {
+    color: #374151;
+}
+
+.admin-table thead th {
+    background-color: #f9fafb;
+    font-weight: 600;
+    color: #4b5563;
+    text-transform: uppercase;
+}
+
+.admin-table tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+.admin-table td:last-child {
+    text-align: center;
+}
+
+/* For the green/red status icons */
+.admin-table td .lucide-shield-check,
+.admin-table td .lucide-shield-x {
+    vertical-align: middle;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    color: #4b5563;
+    display: inline-flex;
+    align-items: center;
+}
+
+.icon-btn:hover {
+    background-color: #e5e7eb;
+    color: #1f2937;
+}
