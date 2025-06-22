@@ -13,10 +13,10 @@ dotenv.config();
 connectDB();
 const app = express();
 
-// ======================= START: UPDATED CORS CONFIGURATION =======================
+// CORS CONFIGURATION
 app.use(cors({
   origin: function (origin, callback) {
-    // --- ADD THIS LINE FOR DEBUGGING ---
+    // --- DEBUGGING LINE ---
     console.log('Incoming Origin:', origin); 
 
     const allowedOrigins = [
@@ -47,7 +47,6 @@ app.use(cors({
   },
   credentials: true
 }));
-// ======================== END: UPDATED CORS CONFIGURATION ========================
 
 app.use(express.json());
 
@@ -77,4 +76,7 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// ============= THIS IS THE ONLY LINE I HAVE CHANGED =============
+app.listen(PORT, () => console.log(`// SERVER DEPLOYMENT TEST: v1.1 // Server running on port ${PORT}`));
+// =================================================================
