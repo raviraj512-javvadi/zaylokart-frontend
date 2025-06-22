@@ -1,29 +1,31 @@
 import express from 'express';
-// We now import both 'protect' and 'admin' middleware
 import { protect, admin } from '../middleware/authMiddleware.js';
 
-// We also import the getOrders function from the controller
+// Import all the functions we will need
 import { 
   addOrderItems, 
   getMyOrders, 
   getOrderById,
-  getOrders 
+  getOrders,
+  updateOrderToDelivered // <-- Added this import
 } from '../controllers/orderController.js';
 
 const router = express.Router();
 
-// This route now handles two things:
-// POST to /api/orders will create a new order
-// GET to /api/orders will get ALL orders (but only for an Admin)
+// GET all orders (Admin) & POST a new order (User)
 router.route('/')
   .post(protect, addOrderItems)
-  .get(protect, admin, getOrders); // <-- This is the new line
+  .get(protect, admin, getOrders);
 
-// Route to get the logged-in user's own orders
+// GET the logged-in user's orders
 router.route('/myorders').get(protect, getMyOrders);
 
-// Route to get a single order by its ID
-// IMPORTANT: This route must come AFTER the more specific routes above
+// GET a single order by its ID
 router.route('/:id').get(protect, getOrderById);
+
+// --- THIS IS THE NEW ROUTE WE ARE ADDING ---
+// PUT to update an order to delivered (Admin only)
+router.route('/:id/deliver').put(protect, admin, updateOrderToDelivered);
+// ---------------------------------------------
 
 export default router;

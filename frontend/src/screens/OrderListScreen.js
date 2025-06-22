@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react'; // <-- import useCallback
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ShieldCheck, ShieldX, Eye } from 'lucide-react';
+import { ShieldCheck, ShieldX, Eye, Truck } from 'lucide-react'; // <-- import Truck icon
 import API_URL from '../apiConfig';
-import './OrderListScreen.css'; // Import the new CSS file
+import './OrderListScreen.css';
 
 const OrderListScreen = () => {
   const [orders, setOrders] = useState([]);
@@ -12,36 +12,56 @@ const OrderListScreen = () => {
   const { userInfo } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        setLoading(true);
-        // This is the API call to the new route we created on the backend
-        const response = await fetch(`${API_URL}/api/orders`, {
-          headers: {
-            Authorization: `Bearer ${userInfo.token}`, // Must include token for admin access
-          },
-        });
+  // We define fetchOrders here so it can be called from multiple places
+  const fetchOrders = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_URL}/api/orders`, {
+        headers: {
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      });
 
-        if (!response.ok) {
-          throw new Error('Could not fetch orders.');
-        }
-
-        const data = await response.json();
-        setOrders(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error('Could not fetch orders.');
       }
-    };
 
+      const data = await response.json();
+      setOrders(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [userInfo]); // <-- Add userInfo as a dependency
+
+  useEffect(() => {
     if (userInfo && userInfo.isAdmin) {
       fetchOrders();
     } else {
       navigate('/login');
     }
-  }, [userInfo, navigate]);
+  }, [userInfo, navigate, fetchOrders]);
+
+
+  // --- THIS IS THE NEW FUNCTION TO HANDLE THE UPDATE ---
+  const markAsDeliveredHandler = async (orderId) => {
+    if (window.confirm('Are you sure you want to mark this order as delivered?')) {
+      try {
+        await fetch(`${API_URL}/api/orders/${orderId}/deliver`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${userInfo.token}`,
+          },
+        });
+        // After updating, refresh the list of orders to show the change
+        fetchOrders(); 
+      } catch (err) {
+        alert('Error updating order.');
+      }
+    }
+  };
+  // --------------------------------------------------------
 
   if (loading) return <div className="loading-spinner">Loading Orders...</div>;
   if (error) return <div className="error-message">Error: {error}</div>;
@@ -86,9 +106,19 @@ const OrderListScreen = () => {
                   )}
                 </td>
                 <td>
-                  <Link to={`/order/success/${order._id}`} className="icon-btn">
-                    <Eye size={18} />
-                  </Link>
+                  <div className="action-buttons">
+                    <Link to={`/order/success/${order._id}`} className="icon-btn" title="View Details">
+                      <Eye size={18} />
+                    </Link>
+                    {/* --- THIS IS THE NEW BUTTON --- */}
+                    {/* It only shows if the order is NOT already delivered */}
+                    {!order.isDelivered && (
+                      <button className="icon-btn" title="Mark as Delivered" onClick={() => markAsDeliveredHandler(order._id)}>
+                        <Truck size={18} />
+                      </button>
+                    )}
+                    {/* ----------------------------- */}
+                  </div>
                 </td>
               </tr>
             ))}
