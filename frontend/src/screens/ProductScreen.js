@@ -77,7 +77,10 @@ const ProductScreen = () => {
   return (
     <div className="product-page-container">
       <div className="product-image-panel">
-        <img src={`${API_URL}${product.imageUrl}`} alt={product.name} />
+        {/* ===================== THE ONLY CHANGE IS HERE ===================== */}
+        {/* We remove `${API_URL}` so the image loads from the frontend server */}
+        <img src={product.imageUrl} alt={product.name} />
+        {/* =================================================================== */}
       </div>
       <div className="product-info-panel">
         <div className="product-info-header">
