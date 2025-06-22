@@ -70,23 +70,23 @@ main.main-content {
   position: relative;
 }
 
+/* ===================== THIS IS THE ONLY CHANGE ===================== */
+/* The visibility of this element is now fully controlled by React. */
+/* The `display: none` and `.open` class have been removed. */
 .dropdown-content {
-  display: none; /* Hidden by default */
+  display: flex; /* It should be a flex container when it appears */
+  flex-direction: column;
   position: absolute;
   top: 120%;
   right: 0;
   background-color: white;
   min-width: 150px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
   z-index: 10;
-  flex-direction: column;
-  border-radius: 4px; /* Optional: adds nice rounded corners */
+  border-radius: 6px;
+  border: 1px solid #eee;
 }
-
-/* This rule is now controlled by React, so the hover rule is removed */
-.dropdown-content.open {
-  display: flex; /* We will add the 'open' class with React */
-}
+/* =================================================================== */
 
 .dropdown-content a, .dropdown-content button {
   padding: 10px 15px;
@@ -95,6 +95,7 @@ main.main-content {
   border: none;
   width: 100%;
   cursor: pointer;
+  font-size: 1rem;
 }
 
 .dropdown-content a:hover,
