@@ -1,9 +1,9 @@
 import express from 'express';
 
-// ✅ Import controller functions (old + new)
+// Import the new OTP functions and keep the existing wishlist/protect functions
 import { 
-  authUser, 
-  registerUser,
+  sendOtp,
+  verifyOtp,
   getWishlist,
   addToWishlist,
   removeFromWishlist,
@@ -13,18 +13,20 @@ import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// --- ✅ Existing Auth Routes ---
-router.post('/login', authUser);
-router.post('/register', registerUser);
+// --- NEW OTP AUTHENTICATION ROUTES ---
+router.post('/send-otp', sendOtp);      // Route to send an OTP to a mobile number
+router.post('/verify-otp', verifyOtp);  // Route to verify the OTP and log in/register the user
 
-// --- ✅ Wishlist Routes (NEW) ---
+
+// --- Wishlist Routes (These remain the same) ---
 router
   .route('/wishlist')
-  .get(protect, getWishlist)       // Get wishlist items
-  .post(protect, addToWishlist);   // Add product to wishlist
+  .get(protect, getWishlist)
+  .post(protect, addToWishlist);
 
 router
   .route('/wishlist/:id')
-  .delete(protect, removeFromWishlist); // Remove product by ID from wishlist
+  .delete(protect, removeFromWishlist);
+
 
 export default router;
