@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; // Removed useEffect and useRef
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, ShoppingBag } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -10,26 +10,31 @@ const Header = () => {
   const { cartItems } = useCart();
   const navigate = useNavigate();
 
-  // State to manage which dropdown is open ('admin', 'profile', or null)
   const [openDropdown, setOpenDropdown] = useState(null);
 
   const logoutHandler = () => {
     logout();
-    setOpenDropdown(null); // Close dropdown on logout
+    setOpenDropdown(null);
     navigate('/');
   };
 
   const cartItemCount = cartItems ? cartItems.reduce((acc, item) => acc + item.qty, 0) : 0;
   
-  // This function cleanly toggles the dropdowns
   const toggleDropdown = (menu) => {
-    // If the clicked menu is already open, close it. Otherwise, open the clicked menu.
     setOpenDropdown(prev => (prev === menu ? null : menu));
   };
 
   return (
     <header className="header">
-      <Link to="/" className="header-logo">ZAYLOKART</Link>
+      
+      {/* ===================== THIS IS THE UPDATED LOGO SECTION ===================== */}
+      <Link to="/" className="header-logo">
+        <img src="/images/zaylo_logo.png" alt="ZayloCart Logo" className="logo-image" />
+        <span className="logo-text">
+          <span className="logo-z">Z</span>AYLO<span className="logo-c">C</span>ART
+        </span>
+      </Link>
+      {/* ========================================================================== */}
       
       <nav className="header-nav-center">
         <Link to="/category/new">NEW</Link>
@@ -44,11 +49,9 @@ const Header = () => {
 
         {userInfo && userInfo.isAdmin && (
           <div className="dropdown">
-            {/* The button now toggles the 'admin' dropdown */}
             <button className="icon-button" style={{ fontWeight: 'bold' }} onClick={() => toggleDropdown('admin')}>
               Admin
             </button>
-            {/* The dropdown content only shows if the state is 'admin' */}
             {openDropdown === 'admin' && (
               <div className="dropdown-content">
                 <Link to="/admin/productlist">Products</Link>
@@ -61,11 +64,9 @@ const Header = () => {
 
         {userInfo ? (
           <div className="dropdown">
-            {/* The button now toggles the 'profile' dropdown */}
             <button className="icon-button" onClick={() => toggleDropdown('profile')}>
               <User size={20} />
             </button>
-            {/* The dropdown content only shows if the state is 'profile' */}
             {openDropdown === 'profile' && (
               <div className="dropdown-content">
                 <Link to="/profile">Profile</Link>

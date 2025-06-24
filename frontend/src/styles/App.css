@@ -32,7 +32,28 @@ main.main-content {
   font-size: 24px;
   font-weight: bold;
   color: #222;
+  /* Updated styles for the new logo format */
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
+
+/* --- NEW STYLES FOR YOUR LOGO --- */
+.logo-image {
+  height: 30px; /* You can change this to make the logo bigger or smaller */
+}
+
+.logo-text {
+  /* This inherits the font-size and weight from .header-logo */
+}
+
+.logo-z, .logo-c {
+  /* This makes the Z and C stand out */
+  color: #007BFF; /* A stylish blue color - you can change this! */
+  font-weight: 900; /* Makes them extra bold */
+}
+/* ---------------------------------- */
+
 
 .header-nav-center {
   display: flex;
@@ -70,11 +91,8 @@ main.main-content {
   position: relative;
 }
 
-/* ===================== THIS IS THE ONLY CHANGE ===================== */
-/* The visibility of this element is now fully controlled by React. */
-/* The `display: none` and `.open` class have been removed. */
 .dropdown-content {
-  display: flex; /* It should be a flex container when it appears */
+  display: flex;
   flex-direction: column;
   position: absolute;
   top: 120%;
@@ -86,7 +104,6 @@ main.main-content {
   border-radius: 6px;
   border: 1px solid #eee;
 }
-/* =================================================================== */
 
 .dropdown-content a, .dropdown-content button {
   padding: 10px 15px;
