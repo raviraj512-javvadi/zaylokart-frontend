@@ -1,16 +1,26 @@
 import express from 'express';
+// Import the new getUsers function
 import { 
   authUser, 
   registerUser,
   getWishlist,
   addToWishlist,
   removeFromWishlist,
+  getUsers, // <-- New import
 } from '../controllers/userController.js';
-import { protect } from '../middleware/authMiddleware.js';
+
+// Import BOTH protect and admin middleware
+import { protect, admin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// --- Restore original Auth Routes ---
+
+// --- NEW ROUTE FOR ADMIN TO GET ALL USERS ---
+router.route('/').get(protect, admin, getUsers);
+// --------------------------------------------
+
+
+// --- Existing Auth Routes ---
 router.post('/login', authUser);
 router.post('/register', registerUser);
 
@@ -23,5 +33,6 @@ router
 router
   .route('/wishlist/:id')
   .delete(protect, removeFromWishlist);
+
 
 export default router;

@@ -21,8 +21,9 @@ import GroceriesScreen from './screens/GroceriesScreen';
 import ElectronicsScreen from './screens/ElectronicsScreen';
 import PaymentScreen from './screens/PaymentScreen';
 import OrderSuccessScreen from './screens/OrderSuccessScreen';
-// --- ADDED THIS NEW IMPORT ---
 import OrderListScreen from './screens/OrderListScreen';
+// --- ADDED THIS NEW IMPORT ---
+import UserListScreen from './screens/UserListScreen';
 
 import './styles/App.css';
 
@@ -50,17 +51,16 @@ function App() {
           <Route path="/shipping" element={<ProtectedRoute><ShippingScreen /></ProtectedRoute>} />
           <Route path="/payment" element={<ProtectedRoute><PaymentScreen /></ProtectedRoute>} />
           <Route path="/placeorder" element={<ProtectedRoute><PlaceOrderScreen /></ProtectedRoute>} />
-          {/* Note: changed this route to match your previous setup */}
           <Route path="/order/success/:id" element={<ProtectedRoute><OrderSuccessScreen /></ProtectedRoute>} /> 
-          {/* --- This is the old order details route --- */}
           <Route path="/order/:id" element={<ProtectedRoute><OrderSuccessScreen /></ProtectedRoute>} /> 
           
 
           {/* Protected Routes for Admin */}
           <Route path="/admin/productlist" element={<AdminProtectedRoute><ProductListScreen /></AdminProtectedRoute>} />
           <Route path="/admin/product/:id/edit" element={<AdminProtectedRoute><ProductEditScreen /></AdminProtectedRoute>} />
-          {/* --- ADDED THIS NEW ADMIN ROUTE --- */}
           <Route path="/admin/orderlist" element={<AdminProtectedRoute><OrderListScreen /></AdminProtectedRoute>} />
+          {/* --- ADDED THIS NEW ADMIN ROUTE --- */}
+          <Route path="/admin/userlist" element={<AdminProtectedRoute><UserListScreen /></AdminProtectedRoute>} />
 
         </Routes>
       </main>

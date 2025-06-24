@@ -1,5 +1,6 @@
 import User from '../models/userModel.js';
 import jwt from 'jsonwebtoken';
+import asyncHandler from 'express-async-handler'; // It's good practice to use this for all controllers
 
 // Helper function to generate our app's JWT token
 const generateToken = (id) => {
@@ -9,7 +10,7 @@ const generateToken = (id) => {
 // @desc    Auth user & get token (Login)
 // @route   POST /api/users/login
 // @access  Public
-const authUser = async (req, res) => {
+const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
 
@@ -22,19 +23,21 @@ const authUser = async (req, res) => {
       token: generateToken(user._id),
     });
   } else {
-    res.status(401).json({ message: 'Invalid email or password' });
+    res.status(401);
+    throw new Error('Invalid email or password');
   }
-};
+});
 
 // @desc    Register a new user
 // @route   POST /api/users/register
 // @access  Public
-const registerUser = async (req, res) => {
+const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
   const userExists = await User.findOne({ email });
 
   if (userExists) {
-    return res.status(400).json({ message: 'User already exists' });
+    res.status(400);
+    throw new Error('User already exists');
   }
 
   const user = await User.create({ name, email, password });
@@ -48,15 +51,26 @@ const registerUser = async (req, res) => {
       token: generateToken(user._id),
     });
   } else {
-    res.status(400).json({ message: 'Invalid user data' });
+    res.status(400);
+    throw new Error('Invalid user data');
   }
-};
+});
 
 
-// --- Your existing wishlist functions remain ---
-const getWishlist = async (req, res) => { /* ...your existing function... */ };
-const addToWishlist = async (req, res) => { /* ...your existing function... */ };
-const removeFromWishlist = async (req, res) => { /* ...your existing function... */ };
+// Wishlist functions remain the same
+const getWishlist = asyncHandler(async (req, res) => { /* ...your existing function... */ });
+const addToWishlist = asyncHandler(async (req, res) => { /* ...your existing function... */ });
+const removeFromWishlist = asyncHandler(async (req, res) => { /* ...your existing function... */ });
+
+// --- NEW FUNCTION TO GET ALL USERS (FOR ADMIN) ---
+// @desc    Get all users
+// @route   GET /api/users
+// @access  Private/Admin
+const getUsers = asyncHandler(async (req, res) => {
+  const users = await User.find({});
+  res.json(users);
+});
+// ----------------------------------------------------
 
 
 export {
@@ -65,4 +79,5 @@ export {
   getWishlist,
   addToWishlist,
   removeFromWishlist,
+  getUsers, // <-- Export the new function
 };
