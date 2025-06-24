@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { auth } from '../firebase'; // Import auth from our new firebase.js file
 import API_URL from '../apiConfig';
-import './LoginScreen.css'; // We can reuse the same styles
+import './LoginScreen.css';
 
 const LoginScreen = () => {
-  // --- New State for OTP Flow ---
-  const [step, setStep] = useState(1); // 1 for mobile input, 2 for OTP input
+  // State for the new OTP flow
   const [mobileNumber, setMobileNumber] = useState('');
-  const [otpCode, setOtpCode] = useState('');
+  const [otp, setOtp] = useState('');
+  const [step, setStep] = useState(1); // 1 for mobile input, 2 for OTP input
+  const [confirmationResult, setConfirmationResult] = useState(null);
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -16,70 +19,91 @@ const LoginScreen = () => {
   const { userInfo, login } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect the user if they are already logged in
+  // Redirect if user is already logged in
   useEffect(() => {
     if (userInfo) {
-      navigate('/');
+      navigate(-1); // Go back to the previous page
     }
   }, [userInfo, navigate]);
 
-  // --- Handler for Step 1: Sending the OTP ---
+  // Function to set up the invisible ReCaptcha
+  const setupRecaptcha = () => {
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+        'callback': (response) => {
+          // reCAPTCHA solved, allow signInWithPhoneNumber.
+        }
+      });
+    }
+  }
+
+  // Handler for Step 1: Sending the OTP
   const sendOtpHandler = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/users/send-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mobileNumber }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to send OTP');
-      }
+      setupRecaptcha();
+      const appVerifier = window.recaptchaVerifier;
+      const formattedPhoneNumber = `+91${mobileNumber}`;
       
-      // If OTP is sent successfully, move to the next step
-      setStep(2);
-
+      const result = await signInWithPhoneNumber(auth, formattedPhoneNumber, appVerifier);
+      
+      setConfirmationResult(result);
+      setStep(2); // Move to OTP entry step
     } catch (err) {
-      setError(err.message);
+      console.error("Firebase OTP Send Error:", err);
+      setError('Failed to send OTP. Please check the mobile number and try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  // --- Handler for Step 2: Verifying the OTP & Logging In ---
+  // Handler for Step 2: Verifying the OTP and Logging In
   const verifyOtpHandler = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/users/verify-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mobileNumber, otpCode }),
+      const userCredential = await confirmationResult.confirm(otp);
+      const user = userCredential.user;
+
+      // Get the Firebase ID Token
+      const idToken = await user.getIdToken();
+      
+      // THIS IS THE FINAL STEP: Send the token to our own backend
+      // We will build this backend part next
+      const response = await fetch(`${API_URL}/api/users/login-firebase`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${idToken}`
+          }
       });
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to verify OTP');
+        throw new Error(data.message || 'Failed to login with our server.');
       }
       
-      // If verification is successful, update the auth context
+      // If our server confirms the login, update the context
       login(data);
-      // The useEffect will then handle the redirect to the homepage
 
     } catch (err) {
-      setError(err.message);
+      console.error("Firebase OTP Verify Error:", err);
+      setError('Failed to verify OTP. Please check the code or try again.');
     } finally {
       setLoading(false);
     }
   };
 
+
   return (
     <div className="login-container">
+      {/* This div is for the invisible ReCaptcha widget */}
+      <div id="recaptcha-container"></div>
+
       {step === 1 ? (
         // --- FORM FOR STEP 1: ENTER MOBILE NUMBER ---
         <form className="login-form" onSubmit={sendOtpHandler}>
@@ -102,7 +126,7 @@ const LoginScreen = () => {
             </div>
           </div>
           <button type="submit" className="login-button" disabled={loading}>
-            {loading ? 'Sending...' : 'Send OTP'}
+            {loading ? 'Sending OTP...' : 'Send OTP'}
           </button>
         </form>
       ) : (
@@ -116,8 +140,8 @@ const LoginScreen = () => {
             <input 
               type="text" 
               id="otp" 
-              value={otpCode} 
-              onChange={(e) => setOtpCode(e.target.value)} 
+              value={otp} 
+              onChange={(e) => setOtp(e.target.value)} 
               required 
             />
           </div>
