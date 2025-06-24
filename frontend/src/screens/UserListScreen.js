@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext'; // Assuming this is your auth context
+import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, ShieldX, Trash2, Edit } from 'lucide-react';
+import API_URL from '../apiConfig'; // <-- IMPORT THE API URL CONFIG
 
 const UserListScreen = () => {
   const [users, setUsers] = useState([]);
@@ -11,50 +12,38 @@ const UserListScreen = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // This effect will run once when the component mounts.
     const fetchUsers = async () => {
-      // Step 1: Check if we have the user info needed for an authorized call.
-      if (!userInfo || !userInfo.token) {
-        setError("You are not logged in. Redirecting...");
-        setLoading(false);
-        setTimeout(() => navigate('/login'), 2000);
-        return;
-      }
-      if (!userInfo.isAdmin) {
-        setError("Access Denied: You must be an admin to view this page.");
+      if (!userInfo || !userInfo.isAdmin) {
+        setError("Access Denied.");
         setLoading(false);
         return;
       }
 
       try {
-        console.log('Attempting to fetch users with token...');
-        const response = await fetch(`/api/users`, {
+        console.log(`Fetching users from: ${API_URL}/api/users`); // Debugging line
+
+        // --- THIS IS THE CRUCIAL FIX ---
+        // We now use the full URL from apiConfig.js
+        const response = await fetch(`${API_URL}/api/users`, {
           headers: {
-            'Content-Type': 'application/json',
             Authorization: `Bearer ${userInfo.token}`,
           },
         });
+        // -----------------------------
 
-        // Step 2: Check if the network response is okay (e.g., status 200).
         if (!response.ok) {
-          // If we get an error (like 401 Unauthorized, 404 Not Found, 500 Server Error)
-          // we try to get the error message text from the backend.
           const errorText = await response.text();
-          console.error('Failed to fetch users. Status:', response.status, 'Response:', errorText);
-          throw new Error(`Server responded with status ${response.status}: ${errorText || 'No error message'}`);
+          console.error('API Error Response:', errorText);
+          throw new Error(`Server responded with an error: ${response.status}`);
         }
 
-        // Step 3: If the response is okay, parse the JSON data.
         const data = await response.json();
-        console.log('Successfully fetched users:', data);
         setUsers(data);
 
       } catch (err) {
-        console.error('An error occurred during the fetch operation:', err);
-        // This will catch network errors or errors from the 'throw' statement above.
+        console.error('Fetch Operation Error:', err);
         setError(err.message);
       } finally {
-        // This will always run, after the try or catch block.
         setLoading(false);
       }
     };
@@ -65,8 +54,7 @@ const UserListScreen = () => {
   const deleteHandler = (id) => {
     alert(`Delete functionality for user ${id} is not yet implemented.`);
   };
-  
-  // --- Render Logic ---
+
   if (loading) {
     return <div className="p-10 text-center">Loading Users...</div>;
   }
@@ -85,7 +73,6 @@ const UserListScreen = () => {
               <th className="text-left py-3 px-4 uppercase font-semibold text-sm">ID</th>
               <th className="text-left py-3 px-4 uppercase font-semibold text-sm">Name</th>
               <th className="text-left py-3 px-4 uppercase font-semibold text-sm">Email</th>
-              {/* Added Phone & Address Headers */}
               <th className="text-left py-3 px-4 uppercase font-semibold text-sm">Phone</th>
               <th className="text-left py-3 px-4 uppercase font-semibold text-sm">Address</th>
               <th className="text-center py-3 px-4 uppercase font-semibold text-sm">Admin</th>
@@ -98,15 +85,10 @@ const UserListScreen = () => {
                 <td className="py-3 px-4">{user._id}</td>
                 <td className="py-3 px-4">{user.name}</td>
                 <td className="py-3 px-4"><a href={`mailto:${user.email}`} className="text-blue-500">{user.email}</a></td>
-                {/* Display Phone & Address Data */}
                 <td className="py-3 px-4">{user.phone || 'N/A'}</td>
                 <td className="py-3 px-4">{user.shippingAddress ? `${user.shippingAddress.address}, ${user.shippingAddress.city}` : 'N/A'}</td>
                 <td className="py-3 px-4 text-center">
-                  {user.isAdmin ? (
-                    <ShieldCheck color="green" className="inline-block" />
-                  ) : (
-                    <ShieldX color="red" className="inline-block" />
-                  )}
+                  {user.isAdmin ? <ShieldCheck color="green" className="inline-block" /> : <ShieldX color="red" className="inline-block" />}
                 </td>
                 <td className="py-3 px-4 text-center">
                    <button onClick={() => alert('Edit not implemented')} className="text-blue-500 hover:text-blue-700 mr-2"><Edit size={18} /></button>
