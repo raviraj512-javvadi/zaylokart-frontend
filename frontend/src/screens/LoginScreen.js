@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
-// --- THE ONLY CHANGE IS ON THIS LINE: 'Link' has been removed ---
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
-import { auth } from '../firebase';
+import { auth } from '../firebase'; 
 import API_URL from '../apiConfig';
 import './LoginScreen.css';
 
 const LoginScreen = () => {
-  // --- All the rest of the code is already correct ---
+  // State for the new OTP flow
   const [step, setStep] = useState(1);
   const [mobileNumber, setMobileNumber] = useState('');
   const [otp, setOtp] = useState('');
+  
+  // ============= THIS IS THE MISSING LINE THAT FIXES THE BUG =============
+  const [confirmationResult, setConfirmationResult] = useState(null);
+  // =======================================================================
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -19,21 +22,26 @@ const LoginScreen = () => {
   const { userInfo, login } = useAuth();
   const navigate = useNavigate();
 
+  // Redirect if user is already logged in
   useEffect(() => {
     if (userInfo) {
-      navigate(-1);
+      navigate(-1); // Go back to the previous page
     }
   }, [userInfo, navigate]);
 
+  // Function to set up the invisible ReCaptcha
   const setupRecaptcha = () => {
     if (!window.recaptchaVerifier) {
       window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
         'size': 'invisible',
-        'callback': (response) => { /* ... */ }
+        'callback': (response) => {
+          // reCAPTCHA solved, allow signInWithPhoneNumber.
+        }
       });
     }
   }
 
+  // Handler for Step 1: Sending the OTP
   const sendOtpHandler = async (e) => {
     e.preventDefault();
     setError('');
@@ -46,7 +54,7 @@ const LoginScreen = () => {
       const result = await signInWithPhoneNumber(auth, formattedPhoneNumber, appVerifier);
       
       setConfirmationResult(result);
-      setStep(2);
+      setStep(2); // Move to OTP entry step
     } catch (err) {
       console.error("Firebase OTP Send Error:", err);
       setError('Failed to send OTP. Please check the mobile number and try again.');
@@ -55,6 +63,7 @@ const LoginScreen = () => {
     }
   };
 
+  // Handler for Step 2: Verifying the OTP and Logging In
   const verifyOtpHandler = async (e) => {
     e.preventDefault();
     setError('');
@@ -62,7 +71,7 @@ const LoginScreen = () => {
     try {
       const userCredential = await confirmationResult.confirm(otp);
       const user = userCredential.user;
-      
+
       const idToken = await user.getIdToken();
       
       const response = await fetch(`${API_URL}/api/users/login-firebase`, {
@@ -87,6 +96,7 @@ const LoginScreen = () => {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="login-container">
