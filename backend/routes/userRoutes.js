@@ -16,6 +16,7 @@ const router = express.Router();
 
 
 // --- NEW ROUTE FOR ADMIN TO GET ALL USERS ---
+// This is protected by both 'protect' and 'admin' middleware
 router.route('/').get(protect, admin, getUsers);
 // --------------------------------------------
 
