@@ -1,3 +1,6 @@
+/* --- Import a stylish, bold font from Google Fonts --- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700;900&display=swap');
+
 /* Reset & Base Styles */
 body {
   margin: 0;
@@ -28,11 +31,31 @@ main.main-content {
   z-index: 1000;
 }
 
-/* --- NEW, SIMPLIFIED STYLE FOR YOUR IMAGE LOGO --- */
-.header-logo-image {
-  height: 40px; /* You can change this to make the logo bigger or smaller */
+/* --- NEW STYLES FOR YOUR LOGO --- */
+.header-logo-link {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Space between the image and the text */
 }
-/* -------------------------------------------------- */
+
+.header-logo-image {
+  height: 40px; /* Controls the size of your 'Z' logo */
+}
+
+.header-logo-text {
+  font-family: 'Poppins', sans-serif; /* Our new stylish font */
+  font-size: 26px; /* A good size to match the logo */
+  font-weight: 900; /* Makes the font very bold and impactful */
+  
+  /* This is the magic for the gradient text */
+  background: linear-gradient(90deg, #FF9933 0%, #FFFFFF 50%, #138808 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* Add a subtle shadow to make the white part visible */
+  filter: drop-shadow(0 0 1px rgba(0,0,0,0.3));
+}
+/* -------------------------------- */
 
 
 .header-nav-center {
