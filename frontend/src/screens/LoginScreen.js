@@ -9,7 +9,8 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   
-  const { userInfo, login }_ = useAuth();
+  // --- THIS IS THE CORRECTED LINE (underscore removed) ---
+  const { userInfo, login } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
