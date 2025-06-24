@@ -27,14 +27,15 @@ const Header = () => {
   return (
     <header className="header">
       
-      {/* ===================== THIS IS THE UPDATED LOGO SECTION ===================== */}
-      <Link to="/" className="header-logo">
-        <img src="/images/zaylo_logo.png" alt="ZayloCart Logo" className="logo-image" />
-        <span className="logo-text">
-          <span className="logo-z">Z</span>AYLO<span className="logo-c">C</span>ART
-        </span>
+      {/* ===================== NEW, SIMPLER LOGO ===================== */}
+      <Link to="/">
+        <img 
+          src="/images/zaylokart-logo.png" 
+          alt="Zaylokart Logo" 
+          className="header-logo-image" 
+        />
       </Link>
-      {/* ========================================================================== */}
+      {/* ============================================================= */}
       
       <nav className="header-nav-center">
         <Link to="/category/new">NEW</Link>

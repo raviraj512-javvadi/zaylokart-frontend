@@ -28,31 +28,11 @@ main.main-content {
   z-index: 1000;
 }
 
-.header-logo {
-  font-size: 24px;
-  font-weight: bold;
-  color: #222;
-  /* Updated styles for the new logo format */
-  display: flex;
-  align-items: center;
-  gap: 8px;
+/* --- NEW, SIMPLIFIED STYLE FOR YOUR IMAGE LOGO --- */
+.header-logo-image {
+  height: 40px; /* You can change this to make the logo bigger or smaller */
 }
-
-/* --- NEW STYLES FOR YOUR LOGO --- */
-.logo-image {
-  height: 30px; /* You can change this to make the logo bigger or smaller */
-}
-
-.logo-text {
-  /* This inherits the font-size and weight from .header-logo */
-}
-
-.logo-z, .logo-c {
-  /* This makes the Z and C stand out */
-  color: #007BFF; /* A stylish blue color - you can change this! */
-  font-weight: 900; /* Makes them extra bold */
-}
-/* ---------------------------------- */
+/* -------------------------------------------------- */
 
 
 .header-nav-center {
