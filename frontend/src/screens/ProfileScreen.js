@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext'; // Using your custom auth context
-import API_URL from '../apiConfig'; // Using your API config
-import { FaCheckCircle, FaTimesCircle, FaEye } from 'react-icons/fa'; // Using react-icons for better visuals
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext'; 
+import API_URL from '../apiConfig'; 
 
 const ProfileScreen = () => {
-  const { userInfo, login: updateAuthContext } = useAuth(); // Assuming login also updates context
+  const { userInfo, login: updateAuthContext } = useAuth();
   
   // State for user details form
   const [name, setName] = useState('');
@@ -22,20 +22,25 @@ const ProfileScreen = () => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   // Set initial form values when component mounts
   useEffect(() => {
     if (userInfo) {
       setName(userInfo.name);
       setEmail(userInfo.email);
-      setPhone(userInfo.phone || ''); // Set phone if it exists
+      setPhone(userInfo.phone || '');
+    } else {
+        // If no user info, we shouldn't be here. Redirect to login.
+        navigate('/login');
     }
-  }, [userInfo]);
+  }, [userInfo, navigate]);
 
   // Fetch user's orders when component mounts
   useEffect(() => {
     const fetchMyOrders = async () => {
       setLoading(true);
+      setError('');
       try {
         const response = await fetch(`${API_URL}/api/orders/myorders`, {
           headers: {
@@ -64,7 +69,6 @@ const ProfileScreen = () => {
     setError('');
     setMessage('');
     
-    // Basic validation
     if(password && (password !== confirmPassword)) {
         setError("Passwords do not match!");
         return;
@@ -85,7 +89,6 @@ const ProfileScreen = () => {
             throw new Error(data.message || 'Failed to update profile.');
         }
         
-        // Update the context with the new user info
         updateAuthContext(data); 
         setMessage('Profile updated successfully!');
         setPassword('');
@@ -100,7 +103,6 @@ const ProfileScreen = () => {
     <div className="container mx-auto p-4 sm:p-6 lg:p-8 bg-gray-50 min-h-screen">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* Left Column: User Profile Update */}
         <div className="lg:col-span-1 bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-2xl font-bold text-gray-800 mb-6">User Profile</h2>
           
@@ -121,7 +123,7 @@ const ProfileScreen = () => {
               <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
             <hr className="my-6"/>
-            <p className="text-gray-600 text-sm mb-4">Update your password below.</p>
+            <p className="text-gray-600 text-sm mb-4">Leave fields blank to keep current password.</p>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">New Password</label>
               <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
@@ -136,10 +138,9 @@ const ProfileScreen = () => {
           </form>
         </div>
 
-        {/* Right Column: Order History */}
         <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-2xl font-bold text-gray-800 mb-6">My Orders</h2>
-          {loading ? <p>Loading orders...</p> : error ? <div className="text-red-500">{error}</div> : (
+          {loading ? <p>Loading orders...</p> : (
             <div className="overflow-x-auto">
               <table className="min-w-full leading-normal">
                 <thead>
@@ -153,22 +154,26 @@ const ProfileScreen = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {orders.map((order) => (
+                  {orders.length > 0 ? orders.map((order) => (
                     <tr key={order._id} className="border-b border-gray-200 hover:bg-gray-50">
                       <td className="px-5 py-5 text-sm">{order._id}</td>
                       <td className="px-5 py-5 text-sm">{new Date(order.createdAt).toLocaleDateString()}</td>
                       <td className="px-5 py-5 text-sm">₹{order.totalPrice.toFixed(2)}</td>
                       <td className="px-5 py-5 text-sm text-center">
-                        {order.isPaid ? (<FaCheckCircle className="text-green-500 inline-block" />) : (<FaTimesCircle className="text-red-500 inline-block" />)}
+                        {order.isPaid ? '✅' : '❌'}
                       </td>
                       <td className="px-5 py-5 text-sm text-center">
-                        {order.isDelivered ? (<FaCheckCircle className="text-green-500 inline-block" />) : (<FaTimesCircle className="text-red-500 inline-block" />)}
+                        {order.isDelivered ? '✅' : '❌'}
                       </td>
                       <td className="px-5 py-5 text-sm">
                         <button onClick={() => navigate(`/order/${order._id}`)} className="text-blue-500 hover:underline">Details</button>
                       </td>
                     </tr>
-                  ))}
+                  )) : (
+                    <tr>
+                        <td colSpan="6" className="text-center py-10">You have no orders.</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
