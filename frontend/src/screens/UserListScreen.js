@@ -1,185 +1,121 @@
-import React, { useState, useEffect, useCallback } from 'react';
-// The 'lucide-react' library provides the icons used in the UI.
-import { ShieldCheck, ShieldX, Trash2 } from 'lucide-react';
-
-// --- Mock Configuration & Data ---
-// To make this component runnable on its own, we define mock versions
-// of the external dependencies it originally had.
-
-/**
- * Mock API URL. In a real application, this would be in a configuration file.
- */
-const API_URL = 'https://jsonplaceholder.typicode.com';
-
-/**
- * Mock implementation of the 'useAuth' hook.
- * This simulates the authentication context, providing user information.
- * @returns {{userInfo: {token: string, isAdmin: boolean}}}
- */
-const useAuth = () => ({
-  // We simulate a user who is logged in and is an administrator.
-  userInfo: {
-    token: 'fake-jwt-token-for-preview',
-    isAdmin: true,
-  },
-});
-
-
-// --- Main Component: UserListScreen ---
-// This component displays a list of users for an admin panel.
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext'; // Assuming this is your auth context
+import { useNavigate } from 'react-router-dom';
+import { ShieldCheck, ShieldX, Trash2, Edit } from 'lucide-react';
 
 const UserListScreen = () => {
-  // --- State Management ---
-  const [users, setUsers] = useState([]);      // Holds the list of users fetched from the API.
-  const [loading, setLoading] = useState(true); // Tracks whether the data is being loaded.
-  const [error, setError] = useState(null);      // Stores any error messages from the API call.
-
-  // Get user info from our mock authentication hook.
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const { userInfo } = useAuth();
+  const navigate = useNavigate();
 
-  // --- Data Fetching ---
-  // The fetchUsers function is wrapped in `useCallback` to memoize it.
-  // This prevents it from being recreated on every render, which is important
-  // because it's a dependency of the `useEffect` hook.
-  const fetchUsers = useCallback(async () => {
-    // We must have user info to proceed.
-    if (!userInfo || !userInfo.token) {
-      setError("Authentication credentials are missing.");
-      setLoading(false);
-      return;
-    }
-    
-    try {
-      setLoading(true);
-      // Fetch user data from the public mock API.
-      const response = await fetch(`${API_URL}/users`);
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch users. Status: ${response.status}`);
+  useEffect(() => {
+    // This effect will run once when the component mounts.
+    const fetchUsers = async () => {
+      // Step 1: Check if we have the user info needed for an authorized call.
+      if (!userInfo || !userInfo.token) {
+        setError("You are not logged in. Redirecting...");
+        setLoading(false);
+        setTimeout(() => navigate('/login'), 2000);
+        return;
+      }
+      if (!userInfo.isAdmin) {
+        setError("Access Denied: You must be an admin to view this page.");
+        setLoading(false);
+        return;
       }
 
-      const data = await response.json();
+      try {
+        console.log('Attempting to fetch users with token...');
+        const response = await fetch(`/api/users`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${userInfo.token}`,
+          },
+        });
 
-      // Process the fetched data to match the structure our component expects.
-      // We add a `_id` and a sample `isAdmin` flag.
-      const processedData = data.map((user, index) => ({
-        ...user,
-        _id: user.id,
-        isAdmin: index % 3 === 0, // Make every third user an admin for variety.
-      }));
+        // Step 2: Check if the network response is okay (e.g., status 200).
+        if (!response.ok) {
+          // If we get an error (like 401 Unauthorized, 404 Not Found, 500 Server Error)
+          // we try to get the error message text from the backend.
+          const errorText = await response.text();
+          console.error('Failed to fetch users. Status:', response.status, 'Response:', errorText);
+          throw new Error(`Server responded with status ${response.status}: ${errorText || 'No error message'}`);
+        }
 
-      setUsers(processedData);
-      setError(null); // Clear previous errors on success.
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [userInfo]); // This function depends on `userInfo`.
+        // Step 3: If the response is okay, parse the JSON data.
+        const data = await response.json();
+        console.log('Successfully fetched users:', data);
+        setUsers(data);
 
-  // --- Effects ---
-  // This `useEffect` hook runs when the component mounts or its dependencies change.
-  useEffect(() => {
-    // Only fetch users if the current user is an admin.
-    if (userInfo && userInfo.isAdmin) {
-      fetchUsers();
-    } else {
-      // In a real app, a non-admin would be redirected. Here, we just log it.
-      console.log("Access denied. User is not an admin.");
-      setError("You do not have permission to view this page.");
-      setLoading(false);
-    }
-  }, [userInfo, fetchUsers]); // Dependencies: runs if `userInfo` or `fetchUsers` changes.
+      } catch (err) {
+        console.error('An error occurred during the fetch operation:', err);
+        // This will catch network errors or errors from the 'throw' statement above.
+        setError(err.message);
+      } finally {
+        // This will always run, after the try or catch block.
+        setLoading(false);
+      }
+    };
 
-  // --- Event Handlers ---
-  /**
-   * Handles deleting a user from the list.
-   * @param {string | number} id - The ID of the user to delete.
-   */
+    fetchUsers();
+  }, [userInfo, navigate]);
+
   const deleteHandler = (id) => {
-    // In a production app, a custom modal is preferable to `window.confirm`.
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      // Filter out the deleted user from the state.
-      setUsers(currentUsers => currentUsers.filter(user => user._id !== id));
-      console.log(`User with ID: ${id} was deleted from the view.`);
-      // A real application would also send a DELETE request to the API here.
-    }
+    alert(`Delete functionality for user ${id} is not yet implemented.`);
   };
-
-  // --- Conditional Rendering ---
-  // Shows a loading message while data is being fetched.
+  
+  // --- Render Logic ---
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen bg-gray-900 text-white">
-        <p className="text-lg animate-pulse">Loading Users...</p>
-      </div>
-    );
+    return <div className="p-10 text-center">Loading Users...</div>;
   }
 
-  // Shows an error message if the API call failed.
   if (error) {
-    return (
-      <div className="flex justify-center items-center h-screen bg-gray-900 text-red-400">
-        <p className="text-lg">Error: {error}</p>
-      </div>
-    );
+    return <div className="p-10 text-center text-red-500">Error: {error}</div>;
   }
 
-  // --- JSX Output ---
-  // Renders the main user table UI.
   return (
-    <div className="bg-gray-900 min-h-screen p-4 sm:p-6 lg:p-8 text-gray-200 font-sans">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-white">User Management</h1>
-        </div>
-        <div className="bg-gray-800 shadow-2xl rounded-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full leading-normal">
-              <thead>
-                <tr className="border-b-2 border-gray-700 bg-gray-700 text-left text-sm font-semibold text-gray-300 uppercase tracking-wider">
-                  <th className="px-5 py-3">ID</th>
-                  <th className="px-5 py-3">Name</th>
-                  <th className="px-5 py-3">Email</th>
-                  <th className="px-5 py-3 text-center">Admin</th>
-                  <th className="px-5 py-3 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-gray-800">
-                {users.map((user) => (
-                  <tr key={user._id} className="border-b border-gray-700 hover:bg-gray-700/50 transition-colors duration-200">
-                    <td className="px-5 py-4 text-sm">{user._id}</td>
-                    <td className="px-5 py-4 text-sm">{user.name}</td>
-                    <td className="px-5 py-4 text-sm">
-                      <a href={`mailto:${user.email}`} className="text-blue-400 hover:text-blue-300 transition-colors duration-300">
-                        {user.email}
-                      </a>
-                    </td>
-                    <td className="px-5 py-4 text-sm text-center">
-                      {user.isAdmin ? (
-                        <ShieldCheck className="inline-block text-green-500" size={22} title="Admin User" />
-                      ) : (
-                        <ShieldX className="inline-block text-red-500" size={22} title="Standard User" />
-                      )}
-                    </td>
-                    <td className="px-5 py-4 text-sm text-center">
-                      <div className="flex item-center justify-center">
-                        {!user.isAdmin && (
-                            <button
-                              className="p-2 rounded-full text-gray-400 hover:bg-red-600 hover:text-white transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-                              title="Delete User"
-                              onClick={() => deleteHandler(user._id)}>
-                                <Trash2 size={18} />
-                            </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+    <div className="p-4 sm:p-6 lg:p-8">
+      <h1 className="text-2xl font-bold mb-4">Users</h1>
+      <div className="overflow-x-auto shadow-lg rounded-lg">
+        <table className="min-w-full bg-white">
+          <thead className="bg-gray-800 text-white">
+            <tr>
+              <th className="text-left py-3 px-4 uppercase font-semibold text-sm">ID</th>
+              <th className="text-left py-3 px-4 uppercase font-semibold text-sm">Name</th>
+              <th className="text-left py-3 px-4 uppercase font-semibold text-sm">Email</th>
+              {/* Added Phone & Address Headers */}
+              <th className="text-left py-3 px-4 uppercase font-semibold text-sm">Phone</th>
+              <th className="text-left py-3 px-4 uppercase font-semibold text-sm">Address</th>
+              <th className="text-center py-3 px-4 uppercase font-semibold text-sm">Admin</th>
+              <th className="text-center py-3 px-4 uppercase font-semibold text-sm">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="text-gray-700">
+            {users.map((user) => (
+              <tr key={user._id} className="border-b border-gray-200 hover:bg-gray-100">
+                <td className="py-3 px-4">{user._id}</td>
+                <td className="py-3 px-4">{user.name}</td>
+                <td className="py-3 px-4"><a href={`mailto:${user.email}`} className="text-blue-500">{user.email}</a></td>
+                {/* Display Phone & Address Data */}
+                <td className="py-3 px-4">{user.phone || 'N/A'}</td>
+                <td className="py-3 px-4">{user.shippingAddress ? `${user.shippingAddress.address}, ${user.shippingAddress.city}` : 'N/A'}</td>
+                <td className="py-3 px-4 text-center">
+                  {user.isAdmin ? (
+                    <ShieldCheck color="green" className="inline-block" />
+                  ) : (
+                    <ShieldX color="red" className="inline-block" />
+                  )}
+                </td>
+                <td className="py-3 px-4 text-center">
+                   <button onClick={() => alert('Edit not implemented')} className="text-blue-500 hover:text-blue-700 mr-2"><Edit size={18} /></button>
+                   <button onClick={() => deleteHandler(user._id)} className="text-red-500 hover:text-red-700"><Trash2 size={18} /></button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

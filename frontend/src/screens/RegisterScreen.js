@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import API_URL from '../apiConfig'; // <-- IMPORT
+import API_URL from '../apiConfig';
 import './LoginScreen.css'; 
 
 const RegisterScreen = () => {
@@ -9,6 +9,7 @@ const RegisterScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [phone, setPhone] = useState(''); // <-- 1. ADDED STATE FOR PHONE
   const [message, setMessage] = useState(''); 
   const { userInfo, login } = useAuth();
   const navigate = useNavigate();
@@ -23,27 +24,34 @@ const RegisterScreen = () => {
     e.preventDefault();
     if (password !== confirmPassword) {
       setMessage('Passwords do not match');
-    } else {
-      setMessage('');
-      try {
-        const response = await fetch(`${API_URL}/api/users/register`, { // <-- UPDATE
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ name, email, password }),
-        });
+      return; // Stop submission if passwords don't match
+    }
+    // Added a check for the phone number
+    if (!phone) {
+        setMessage('Phone number is required');
+        return;
+    }
 
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.message || 'Failed to register');
-        }
-        
-        login(data);
+    setMessage('');
+    try {
+      const response = await fetch(`${API_URL}/api/users/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // <-- 2. ADDED PHONE TO THE REQUEST BODY
+        body: JSON.stringify({ name, email, password, phone }),
+      });
 
-      } catch (err) {
-        setMessage(err.message);
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to register');
       }
+      
+      login(data);
+
+    } catch (err) {
+      setMessage(err.message);
     }
   };
 
@@ -60,6 +68,14 @@ const RegisterScreen = () => {
           <label htmlFor="email">Email Address</label>
           <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         </div>
+
+        {/* --- 3. ADDED PHONE NUMBER INPUT FIELD --- */}
+        <div className="form-group">
+          <label htmlFor="phone">Phone Number</label>
+          <input type="tel" id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+        </div>
+        {/* -------------------------------------- */}
+
         <div className="form-group">
           <label htmlFor="password">Password</label>
           <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
