@@ -1,67 +1,56 @@
 import React, { useState, useEffect } from 'react';
+// --- THIS IS THE FIX: Removed 'Link' because it was not being used ---
 import { useNavigate } from 'react-router-dom';
+// --------------------------------------------------------------------
 import { useAuth } from '../context/AuthContext'; 
 import API_URL from '../apiConfig'; 
 
 const ProfileScreen = () => {
   const { userInfo, login: updateAuthContext } = useAuth();
+  const navigate = useNavigate();
   
-  // State for user details form
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  
-  // State for password update form
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  
-  // State for orders
   const [orders, setOrders] = useState([]);
-  
-  // State for messages and loading
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
-  // Set initial form values when component mounts
   useEffect(() => {
     if (userInfo) {
       setName(userInfo.name);
       setEmail(userInfo.email);
       setPhone(userInfo.phone || '');
     } else {
-        // If no user info, we shouldn't be here. Redirect to login.
-        navigate('/login');
+      navigate('/login');
     }
   }, [userInfo, navigate]);
 
-  // Fetch user's orders when component mounts
   useEffect(() => {
     const fetchMyOrders = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const response = await fetch(`${API_URL}/api/orders/myorders`, {
-          headers: {
-            Authorization: `Bearer ${userInfo.token}`,
-          },
-        });
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.message || 'Could not fetch orders.');
+      if (userInfo) {
+        try {
+          setLoading(true);
+          const response = await fetch(`${API_URL}/api/orders/myorders`, {
+            credentials: 'include', 
+            headers: {
+              Authorization: `Bearer ${userInfo.token}`,
+            },
+          });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.message || 'Could not fetch orders.');
+          setOrders(data);
+        } catch (err) {
+          setError(err.message);
+        } finally {
+            setLoading(false);
         }
-        setOrders(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
       }
     };
-
-    if (userInfo) {
-      fetchMyOrders();
-    }
+    fetchMyOrders();
   }, [userInfo]);
 
   const handleProfileUpdate = async (e) => {
@@ -77,6 +66,7 @@ const ProfileScreen = () => {
     try {
         const res = await fetch(`${API_URL}/api/users/profile`, {
             method: 'PUT',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${userInfo.token}`,
