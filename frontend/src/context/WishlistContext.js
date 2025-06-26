@@ -12,10 +12,8 @@ export const WishlistProvider = ({ children }) => {
     if (userInfo) {
       try {
         const response = await fetch(`${API_URL}/api/users/wishlist`, {
-          // --- THIS IS THE FIX ---
+          // This is all that's needed for cookie-based auth
           credentials: 'include',
-          // ----------------------
-          headers: { Authorization: `Bearer ${userInfo.token}` },
         });
         const data = await response.json();
         if (response.ok) setWishlistItems(data);
@@ -35,12 +33,10 @@ export const WishlistProvider = ({ children }) => {
     try {
       const response = await fetch(`${API_URL}/api/users/wishlist`, {
         method: 'POST',
-        // --- THIS IS THE FIX ---
-        credentials: 'include',
-        // ----------------------
+        credentials: 'include', // Include credentials (cookies)
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${userInfo.token}`,
+          // --- THIS IS THE FIX: REMOVED THE AUTHORIZATION HEADER ---
         },
         body: JSON.stringify({ productId: product._id }),
       });
@@ -55,10 +51,10 @@ export const WishlistProvider = ({ children }) => {
     try {
       const response = await fetch(`${API_URL}/api/users/wishlist/${productId}`, {
         method: 'DELETE',
-        // --- THIS IS THE FIX ---
-        credentials: 'include',
-        // ----------------------
-        headers: { Authorization: `Bearer ${userInfo.token}` },
+        credentials: 'include', // Include credentials (cookies)
+        headers: {
+          // --- THIS IS THE FIX: REMOVED THE AUTHORIZATION HEADER ---
+        },
       });
       const data = await response.json();
       if (response.ok) setWishlistItems(data);
