@@ -1,8 +1,9 @@
 import jwt from 'jsonwebtoken';
+import asyncHandler from 'express-async-handler';
 import User from '../models/userModel.js';
 
-// This is the new, more robust protect middleware
-const protect = async (req, res, next) => {
+// This is the new, more robust protect middleware for Bearer tokens
+const protect = asyncHandler(async (req, res, next) => {
   let token;
 
   // Check for the authorization header and that it's a Bearer token
@@ -23,7 +24,8 @@ const protect = async (req, res, next) => {
 
       // If no user is found with this ID, the token is invalid
       if (!req.user) {
-          return res.status(401).json({ message: 'Not authorized, user not found' });
+          res.status(401);
+          throw new Error('Not authorized, user not found');
       }
 
       // Move to the next piece of middleware or the controller
@@ -32,13 +34,15 @@ const protect = async (req, res, next) => {
     } catch (error) {
       // This will catch any error, including an expired or invalid token
       console.error('TOKEN VERIFICATION FAILED:', error);
-      res.status(401).json({ message: 'Not authorized, token failed' });
+      res.status(401);
+      throw new Error('Not authorized, token failed');
     }
   } else {
     // If there's no token at all
-    res.status(401).json({ message: 'Not authorized, no token' });
+    res.status(401);
+    throw new Error('Not authorized, no token');
   }
-};
+});
 
 
 // The admin middleware remains the same
@@ -46,7 +50,8 @@ const admin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
     next();
   } else {
-    res.status(401).json({ message: 'Not authorized as an admin' });
+    res.status(401);
+    throw new Error('Not authorized as an admin');
   }
 };
 
