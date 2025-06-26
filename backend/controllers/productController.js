@@ -70,6 +70,12 @@ const updateProduct = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
 
   if (product) {
+    // --- THIS IS THE FIX ---
+    // Ensure the user field is always correctly populated,
+    // which repairs older products that might be missing this required field.
+    product.user = req.user._id;
+    // ----------------------
+    
     product.name = name;
     product.description = description;
     product.brand = brand;
@@ -106,4 +112,3 @@ export {
     updateProduct,
     deleteProduct,
 };
-
