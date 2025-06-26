@@ -8,7 +8,7 @@ const ProductEditScreen = () => {
     const navigate = useNavigate();
     const { userInfo } = useAuth();
 
-    // --- NEW STATE STRUCTURE ---
+    // --- NEW STATE STRUCTURE for Variants and Multiple Images ---
     const [name, setName] = useState('');
     const [brand, setBrand] = useState('');
     const [category, setCategory] = useState('');
@@ -16,8 +16,11 @@ const ProductEditScreen = () => {
     const [images, setImages] = useState(['']); // State for multiple images
     const [variants, setVariants] = useState([{ ram: '', storage: '', price: 0, countInStock: 0 }]); // State for variants
 
+    // States for loading and messaging
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [updateError, setUpdateError] = useState('');
+    const [updateSuccess, setUpdateSuccess] = useState(false);
     const [uploading, setUploading] = useState(false);
 
     useEffect(() => {
@@ -27,7 +30,7 @@ const ProductEditScreen = () => {
                 const response = await fetch(`${API_URL}/api/products/${productId}`);
                 const data = await response.json();
                 if (!response.ok) throw new Error('Failed to fetch product details');
-
+                
                 // --- POPULATE NEW STATES ---
                 setName(data.name);
                 setBrand(data.brand);
@@ -37,9 +40,8 @@ const ProductEditScreen = () => {
                 setImages(data.images && data.images.length > 0 ? data.images : ['']);
                 setVariants(data.variants && data.variants.length > 0 ? data.variants : [{ ram: '', storage: '', price: 0, countInStock: 0 }]);
                 
-            } catch (error) {
-                console.error('Failed to fetch product details', error);
-                setError('Failed to fetch product details. Please try again.');
+            } catch (err) {
+                setError(err.message);
             } finally {
                 setLoading(false);
             }
@@ -50,7 +52,6 @@ const ProductEditScreen = () => {
         }
     }, [productId]);
 
-    // --- HANDLERS FOR VARIANTS ---
     const handleVariantChange = (index, event) => {
         const newVariants = [...variants];
         newVariants[index][event.target.name] = event.target.value;
@@ -66,7 +67,6 @@ const ProductEditScreen = () => {
         setVariants(newVariants);
     };
 
-    // --- HANDLERS FOR IMAGES ---
     const handleImageChange = (index, event) => {
         const newImages = [...images];
         newImages[index] = event.target.value;
@@ -82,7 +82,6 @@ const ProductEditScreen = () => {
         setImages(newImages);
     };
 
-    // --- UPLOAD HANDLER (updates first image) ---
     const uploadFileHandler = async (e) => {
         const file = e.target.files[0];
         const formData = new FormData();
@@ -95,9 +94,8 @@ const ProductEditScreen = () => {
                 body: formData,
             });
             const data = await response.json();
-            // Update the first image URL with the uploaded image path
             const newImages = [...images];
-            newImages[0] = data.image;
+            newImages[0] = data.image; // Replace the first image with the uploaded one
             setImages(newImages);
             setUploading(false);
         } catch (error) {
@@ -106,23 +104,48 @@ const ProductEditScreen = () => {
         }
     };
 
-    // --- SUBMIT HANDLER ---
     const submitHandler = async (e) => {
         e.preventDefault();
+        setUpdateError('');
+        setUpdateSuccess(false);
+
+        // --- THE FIX: Ensure price and stock are sent as numbers ---
+        const productData = {
+            name,
+            brand,
+            category,
+            description,
+            images,
+            variants: variants.map(v => ({
+                ...v,
+                price: Number(v.price) || 0,
+                countInStock: Number(v.countInStock) || 0
+            }))
+        };
+        // -----------------------------------------------------------
+
         try {
-            await fetch(`${API_URL}/api/products/${productId}`, {
+            const res = await fetch(`${API_URL}/api/products/${productId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${userInfo.token}`,
                 },
-                // Send the new data structure to the backend
-                body: JSON.stringify({ name, brand, category, description, images, variants }),
+                body: JSON.stringify(productData),
             });
-            alert('Product updated successfully!');
-            navigate('/admin/productlist');
+
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.message || 'Failed to update product');
+            }
+            
+            setUpdateSuccess(true);
+            setTimeout(() => {
+                navigate('/admin/productlist');
+            }, 2000);
+
         } catch (error) {
-            alert('Error updating product');
+            setUpdateError(error.message);
         }
     };
     
@@ -137,15 +160,16 @@ const ProductEditScreen = () => {
             <form onSubmit={submitHandler} className="bg-white p-6 rounded-lg shadow-md max-w-4xl mx-auto">
                 <h1 className="text-2xl font-bold mb-6">Edit Product</h1>
                 
-                {/* Standard product fields */}
+                {updateError && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{updateError}</div>}
+                {updateSuccess && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">Product updated successfully! Redirecting...</div>}
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div><label className="block font-semibold">Name</label><input type="text" value={name} onChange={e => setName(e.target.value)} className="border p-2 w-full rounded" /></div>
                     <div><label className="block font-semibold">Brand</label><input type="text" value={brand} onChange={e => setBrand(e.target.value)} className="border p-2 w-full rounded" /></div>
                     <div><label className="block font-semibold">Category</label><input type="text" value={category} onChange={e => setCategory(e.target.value)} className="border p-2 w-full rounded" /></div>
                 </div>
-                <div className="mb-6"><label className="block font-semibold">Description</label><textarea value={description} onChange={e => setDescription(e.target.value)} className="border p-2 w-full rounded" /></div>
-
-                {/* --- Multiple Images Section --- */}
+                <div className="mb-6"><label className="block font-semibold">Description</label><textarea value={description} onChange={e => setDescription(e.target.value)} className="border p-2 w-full rounded" rows="4"></textarea></div>
+                
                 <div className="mb-6 p-4 border rounded-lg bg-gray-50">
                     <h3 className="text-lg font-semibold mb-3">Product Images</h3>
                     <div className="mb-3"><label className="block text-sm font-medium">Upload New Image (replaces first URL)</label><input type="file" onChange={uploadFileHandler} className="mt-1" />{uploading && <p>Uploading...</p>}</div>
@@ -158,7 +182,6 @@ const ProductEditScreen = () => {
                     <button type="button" onClick={addImageField} className="bg-blue-500 text-white px-4 py-2 rounded mt-2 hover:bg-blue-600 transition">Add Image URL</button>
                 </div>
 
-                {/* --- Variants Section --- */}
                 <div className="mb-6 p-4 border rounded-lg bg-gray-50">
                     <h3 className="text-lg font-semibold mb-3">Product Variants (RAM, Storage, Price, Stock)</h3>
                     {variants.map((variant, index) => (
