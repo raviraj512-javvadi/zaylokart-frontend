@@ -1,42 +1,46 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-const AuthContext = createContext(null);
+const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [userInfo, setUserInfo] = useState(null);
-
-  // This useEffect runs once when the app first loads
-  useEffect(() => {
-    // It checks if user info is already saved in the browser's local storage
-    const storedUserInfo = localStorage.getItem('userInfo');
-    if (storedUserInfo) {
-      setUserInfo(JSON.parse(storedUserInfo));
+  // Get initial user info from localStorage to stay logged in after a refresh
+  const [userInfo, setUserInfo] = useState(() => {
+    try {
+      const storedUserInfo = localStorage.getItem('userInfo');
+      return storedUserInfo ? JSON.parse(storedUserInfo) : null;
+    } catch (error) {
+      console.error('Failed to parse userInfo from localStorage', error);
+      return null;
     }
-  }, []);
+  });
 
+  // This effect runs whenever userInfo changes, saving it to localStorage.
+  useEffect(() => {
+    if (userInfo) {
+      localStorage.setItem('userInfo', JSON.stringify(userInfo));
+    } else {
+      localStorage.removeItem('userInfo');
+    }
+  }, [userInfo]);
+
+  // The login function now updates the state, which triggers the useEffect above
   const login = (userData) => {
-    // 1. Update the state so the app knows you're logged in
     setUserInfo(userData);
-    // 2. Save the user info to the browser's storage so it's not lost on refresh
-    localStorage.setItem('userInfo', JSON.stringify(userData));
   };
 
+  // The logout function clears the state
   const logout = () => {
-    // 1. Clear the state
     setUserInfo(null);
-    // 2. Remove the user info from the browser's storage
-    localStorage.removeItem('userInfo');
+    // You might also want to call a backend logout endpoint here
   };
 
-  // We provide the userInfo object and the functions to all components
-  return (
-    <AuthContext.Provider value={{ userInfo, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const value = {
+    userInfo,
+    login,
+    logout,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// Custom hook to easily use the auth context in other components
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);
