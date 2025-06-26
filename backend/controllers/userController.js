@@ -3,7 +3,7 @@ import User from '../models/userModel.js';
 import generateToken from '../utils/generateToken.js'; // Assuming you have this utility
 
 // @desc    Auth user & get token
-// @route   POST /api/users/auth
+// @route   POST /api/users/login
 // @access  Public
 const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
@@ -203,7 +203,6 @@ export {
   deleteUser,
   getUserById,
   updateUser,
-  // --- EXPORT WISHLIST FUNCTIONS ---
   getWishlist,
   addToWishlist,
   removeFromWishlist,

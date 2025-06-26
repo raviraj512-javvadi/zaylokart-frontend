@@ -16,9 +16,16 @@ import {
 } from '../controllers/userController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 
+// --- Reorganized Routes ---
+
 // Public routes
 router.route('/').post(registerUser).get(protect, admin, getUsers);
-router.post('/auth', authUser);
+
+// --- THIS IS THE FIX ---
+// The route is now '/login' to match the frontend
+router.post('/login', authUser);
+// -----------------------
+
 router.post('/logout', logoutUser);
 
 // Private routes for logged-in users
@@ -27,14 +34,13 @@ router
   .get(protect, getUserProfile)
   .put(protect, updateUserProfile);
 
-// --- WISHLIST ROUTES ---
+// Wishlist routes
 router.route('/wishlist')
   .get(protect, getWishlist)
   .post(protect, addToWishlist);
 
 router.route('/wishlist/:id')
   .delete(protect, removeFromWishlist);
-// -------------------------
 
 // Private routes for admins only
 router
