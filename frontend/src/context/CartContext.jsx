@@ -1,29 +1,33 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 
-// A more robust way to manage complex state like a cart
 const cartReducer = (state, action) => {
   switch (action.type) {
     case 'CART_ADD_ITEM': {
       const newItem = action.payload;
+
+      // --- FIX: Check for existing items based on the unique variant ID ---
       const existItem = state.cartItems.find(
-        (item) => item.product === newItem.product && item.size === newItem.size
+        (item) => item.variant === newItem.variant
       );
 
       const cartItems = existItem
         ? state.cartItems.map((item) =>
-            item.product === existItem.product && item.size === existItem.size ? newItem : item
+            // If the variant already exists, just update it (e.g., with the new quantity)
+            item.variant === existItem.variant ? newItem : item
           )
         : [...state.cartItems, newItem];
       
       return { ...state, cartItems };
     }
     case 'CART_REMOVE_ITEM': {
-      const itemToRemove = action.payload;
+      // --- FIX: Remove item based on its unique variant ID ---
+      const variantIdToRemove = action.payload;
       const cartItems = state.cartItems.filter(
-        (item) => !(item.product === itemToRemove.product && item.size === itemToRemove.size)
+        (item) => item.variant !== variantIdToRemove
       );
       return { ...state, cartItems };
     }
+    // The rest of the cases remain the same
     case 'CART_SAVE_SHIPPING_ADDRESS':
       return { ...state, shippingAddress: action.payload };
     
@@ -38,8 +42,6 @@ const cartReducer = (state, action) => {
   }
 };
 
-// --- Initial State ---
-// We get the entire cart object from localStorage at once.
 const getInitialState = () => {
   try {
     const storedCart = localStorage.getItem('cart');
@@ -49,7 +51,6 @@ const getInitialState = () => {
   } catch (error) {
     console.error('Failed to parse cart from localStorage', error);
   }
-  // Default state if nothing is in localStorage
   return {
     cartItems: [],
     shippingAddress: {},
@@ -57,33 +58,36 @@ const getInitialState = () => {
   };
 };
 
-
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, getInitialState());
 
-  // This one effect now saves the entire cart state whenever it changes.
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(state));
   }, [state]);
 
-  const addToCart = (product, qty, size) => {
+  // --- FIX: The addToCart function now accepts a 'selectedVariant' object ---
+  const addToCart = (product, qty, selectedVariant) => {
     dispatch({
       type: 'CART_ADD_ITEM',
       payload: {
-        product: product._id,
+        product: product._id, // The base product ID
         name: product.name,
-        imageUrl: product.imageUrl,
-        price: product.price,
-        size: size,
-        qty: qty,
+        image: product.images && product.images.length > 0 ? product.images[0] : '/images/sample.jpg',
+        price: selectedVariant.price, // The price of the SPECIFIC variant
+        variant: selectedVariant._id, // The UNIQUE ID of the variant itself
+        ram: selectedVariant.ram,
+        storage: selectedVariant.storage,
+        countInStock: selectedVariant.countInStock,
+        qty,
       },
     });
   };
   
-  const removeFromCart = (product, size) => {
-    dispatch({ type: 'CART_REMOVE_ITEM', payload: { product: product._id, size: size } });
+  // --- FIX: removeFromCart now only needs the unique variantId ---
+  const removeFromCart = (variantId) => {
+    dispatch({ type: 'CART_REMOVE_ITEM', payload: variantId });
   };
   
   const saveShippingAddress = (data) => {
@@ -99,9 +103,7 @@ export const CartProvider = ({ children }) => {
   };
 
   const value = {
-    cartItems: state.cartItems,
-    shippingAddress: state.shippingAddress,
-    paymentMethod: state.paymentMethod,
+    ...state, // Expose cartItems, shippingAddress, etc.
     addToCart,
     removeFromCart,
     saveShippingAddress,

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useAuth } from './AuthContext';
+import API_URL from '../apiConfig'; // <-- 1. IMPORT THE API_URL
 
 const WishlistContext = createContext();
 
@@ -10,7 +11,8 @@ export const WishlistProvider = ({ children }) => {
   const fetchWishlist = useCallback(async () => {
     if (userInfo) {
       try {
-        const response = await fetch('/api/users/wishlist', {
+        // --- 2. USE THE FULL API_URL ---
+        const response = await fetch(`${API_URL}/api/users/wishlist`, {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         });
         const data = await response.json();
@@ -19,7 +21,6 @@ export const WishlistProvider = ({ children }) => {
         console.error('Failed to fetch wishlist:', error);
       }
     } else {
-      // If user logs out, clear the wishlist
       setWishlistItems([]);
     }
   }, [userInfo]);
@@ -28,15 +29,15 @@ export const WishlistProvider = ({ children }) => {
     fetchWishlist();
   }, [fetchWishlist]);
 
-  const addToWishlist = async (productId) => {
+  const addToWishlist = async (product) => { // Now accepts the full product object
     try {
-      const response = await fetch('/api/users/wishlist', {
+      const response = await fetch(`${API_URL}/api/users/wishlist`, { // <-- Use API_URL
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${userInfo.token}`,
         },
-        body: JSON.stringify({ productId }),
+        body: JSON.stringify({ productId: product._id }), // Send the ID
       });
       const data = await response.json();
       if (response.ok) setWishlistItems(data);
@@ -47,7 +48,7 @@ export const WishlistProvider = ({ children }) => {
 
   const removeFromWishlist = async (productId) => {
     try {
-      const response = await fetch(`/api/users/wishlist/${productId}`, {
+      const response = await fetch(`${API_URL}/api/users/wishlist/${productId}`, { // <-- Use API_URL
         method: 'DELETE',
         headers: { Authorization: `Bearer ${userInfo.token}` },
       });
