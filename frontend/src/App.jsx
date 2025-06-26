@@ -32,12 +32,12 @@ import './styles/App.css';
 
 function App() {
   return (
-    //  --- WRAP EVERYTHING IN THE PROVIDERS ---
-    // This makes login, cart, and wishlist state available to all components
-    <AuthProvider>
-      <WishlistProvider>
-        <CartProvider>
-          <Router>
+    //  --- THIS IS THE FIX ---
+    // The <Router> component MUST be the outermost wrapper.
+    <Router>
+      <AuthProvider>
+        <WishlistProvider>
+          <CartProvider>
             <div className="app-container">
               <Header />
               <main className="main-content">
@@ -73,10 +73,10 @@ function App() {
               </main>
               <Footer />
             </div>
-          </Router>
-        </CartProvider>
-      </WishlistProvider>
-    </AuthProvider>
+          </CartProvider>
+        </WishlistProvider>
+      </AuthProvider>
+    </Router>
     // ------------------------------------------
   );
 }
