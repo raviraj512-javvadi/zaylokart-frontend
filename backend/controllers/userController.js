@@ -19,7 +19,7 @@ const authUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      phone: user.phone, // <-- Added phone to login response
+      phone: user.phone,
       isAdmin: user.isAdmin,
       token: generateToken(user._id),
     });
@@ -33,10 +33,8 @@ const authUser = asyncHandler(async (req, res) => {
 // @route   POST /api/users
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-  // Destructure phone from the request body
   const { name, email, password, phone } = req.body;
 
-  // Check if the phone number was provided
   if (!phone) {
       res.status(400);
       throw new Error('Phone number is a required field');
@@ -49,7 +47,6 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error('User already exists');
   }
 
-  // Add phone number when creating the new user
   const user = await User.create({ name, email, password, phone });
 
   if (user) {
@@ -57,7 +54,7 @@ const registerUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      phone: user.phone, // <-- Return phone number in registration response
+      phone: user.phone,
       isAdmin: user.isAdmin,
       token: generateToken(user._id),
     });
@@ -73,16 +70,55 @@ const getWishlist = asyncHandler(async (req, res) => { /* ...your existing funct
 const addToWishlist = asyncHandler(async (req, res) => { /* ...your existing function... */ });
 const removeFromWishlist = asyncHandler(async (req, res) => { /* ...your existing function... */ });
 
-// --- FUNCTION TO GET ALL USERS (FOR ADMIN) ---
 // @desc    Get all users
 // @route   GET /api/users
 // @access  Private/Admin
 const getUsers = asyncHandler(async (req, res) => {
-  // Select all fields EXCEPT password to avoid sending hashes to the frontend
   const users = await User.find({}).select('-password');
   res.json(users);
 });
-// ----------------------------------------------------
+
+// --- NEW ADMIN FUNCTIONS ---
+
+// @desc    Get user by ID
+// @route   GET /api/users/:id
+// @access  Private/Admin
+const getUserById = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id).select('-password');
+  if (user) {
+    res.status(200).json(user);
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+
+// @desc    Update user
+// @route   PUT /api/users/:id
+// @access  Private/Admin
+const updateUser = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id);
+
+  if (user) {
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+    user.phone = req.body.phone || user.phone;
+    user.isAdmin = Boolean(req.body.isAdmin);
+
+    const updatedUser = await user.save();
+
+    res.status(200).json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      phone: updatedUser.phone,
+      isAdmin: updatedUser.isAdmin,
+    });
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
 
 
 export {
@@ -92,4 +128,6 @@ export {
   addToWishlist,
   removeFromWishlist,
   getUsers,
+  getUserById, // <-- Added
+  updateUser,  // <-- Added
 };

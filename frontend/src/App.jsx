@@ -22,8 +22,9 @@ import ElectronicsScreen from './screens/ElectronicsScreen';
 import PaymentScreen from './screens/PaymentScreen';
 import OrderSuccessScreen from './screens/OrderSuccessScreen';
 import OrderListScreen from './screens/OrderListScreen';
-// --- ADDED THIS NEW IMPORT ---
 import UserListScreen from './screens/UserListScreen';
+// --- ADDED THIS NEW IMPORT ---
+import UserEditScreen from './screens/UserEditScreen';
 
 import './styles/App.css';
 
@@ -59,8 +60,9 @@ function App() {
           <Route path="/admin/productlist" element={<AdminProtectedRoute><ProductListScreen /></AdminProtectedRoute>} />
           <Route path="/admin/product/:id/edit" element={<AdminProtectedRoute><ProductEditScreen /></AdminProtectedRoute>} />
           <Route path="/admin/orderlist" element={<AdminProtectedRoute><OrderListScreen /></AdminProtectedRoute>} />
-          {/* --- ADDED THIS NEW ADMIN ROUTE --- */}
           <Route path="/admin/userlist" element={<AdminProtectedRoute><UserListScreen /></AdminProtectedRoute>} />
+          {/* --- ADDED THIS NEW ADMIN ROUTE FOR EDITING A USER --- */}
+          <Route path="/admin/user/:id/edit" element={<AdminProtectedRoute><UserEditScreen /></AdminProtectedRoute>} />
 
         </Routes>
       </main>

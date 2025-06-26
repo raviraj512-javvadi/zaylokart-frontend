@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom'; // <-- Import Link
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, ShieldX, Trash2, Edit } from 'lucide-react';
-import API_URL from '../apiConfig'; // <-- IMPORT THE API URL CONFIG
+import API_URL from '../apiConfig';
 
 const UserListScreen = () => {
   const [users, setUsers] = useState([]);
@@ -11,48 +11,57 @@ const UserListScreen = () => {
   const { userInfo } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      if (!userInfo || !userInfo.isAdmin) {
-        setError("Access Denied.");
-        setLoading(false);
-        return;
+  // Function to fetch all users
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/api/users`, {
+        headers: {
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Could not fetch users.');
       }
+      setUsers(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
+    if (userInfo && userInfo.isAdmin) {
+      fetchUsers();
+    } else {
+      navigate('/login');
+    }
+  }, [userInfo, navigate]);
+
+  // --- NEW: Implemented Delete Handler ---
+  const deleteHandler = async (id) => {
+    if (window.confirm('Are you sure you want to delete this user?')) {
       try {
-        console.log(`Fetching users from: ${API_URL}/api/users`); // Debugging line
-
-        // --- THIS IS THE CRUCIAL FIX ---
-        // We now use the full URL from apiConfig.js
-        const response = await fetch(`${API_URL}/api/users`, {
+        const response = await fetch(`${API_URL}/api/users/${id}`, {
+          method: 'DELETE',
           headers: {
             Authorization: `Bearer ${userInfo.token}`,
           },
         });
-        // -----------------------------
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('API Error Response:', errorText);
-          throw new Error(`Server responded with an error: ${response.status}`);
-        }
 
         const data = await response.json();
-        setUsers(data);
+        if (!response.ok) {
+          throw new Error(data.message || 'Could not delete user.');
+        }
 
+        // Refetch users to update the list
+        fetchUsers(); 
       } catch (err) {
-        console.error('Fetch Operation Error:', err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
+        alert(err.message);
       }
-    };
-
-    fetchUsers();
-  }, [userInfo, navigate]);
-
-  const deleteHandler = (id) => {
-    alert(`Delete functionality for user ${id} is not yet implemented.`);
+    }
   };
 
   if (loading) {
@@ -91,8 +100,14 @@ const UserListScreen = () => {
                   {user.isAdmin ? <ShieldCheck color="green" className="inline-block" /> : <ShieldX color="red" className="inline-block" />}
                 </td>
                 <td className="py-3 px-4 text-center">
-                   <button onClick={() => alert('Edit not implemented')} className="text-blue-500 hover:text-blue-700 mr-2"><Edit size={18} /></button>
-                   <button onClick={() => deleteHandler(user._id)} className="text-red-500 hover:text-red-700"><Trash2 size={18} /></button>
+                  {/* --- NEW: Changed Edit button to a Link --- */}
+                  <Link to={`/admin/user/${user._id}/edit`} className="text-blue-500 hover:text-blue-700 mr-4">
+                    <Edit size={18} />
+                  </Link>
+                  {/* --- NEW: Delete button now calls deleteHandler --- */}
+                  <button onClick={() => deleteHandler(user._id)} className="text-red-500 hover:text-red-700">
+                    <Trash2 size={18} />
+                  </button>
                 </td>
               </tr>
             ))}
