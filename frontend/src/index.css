@@ -1,3 +1,10 @@
+/* --- THIS IS THE FIX --- */
+/* These 3 lines MUST be at the very top of the file */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* ---------------------- */
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 /* --- Independence Day Theme (Temporary) --- */
