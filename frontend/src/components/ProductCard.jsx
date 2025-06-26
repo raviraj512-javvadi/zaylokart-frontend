@@ -1,26 +1,34 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+// You can add a rating component here if you have one
+// import Rating from './Rating'; 
 
 const ProductCard = ({ product }) => {
+  // --- THIS IS THE CRITICAL FIX ---
+  // We get the price from the *first variant* in the array.
+  // We also check if variants exist to prevent errors.
+  const displayPrice = product.variants && product.variants.length > 0 
+    ? product.variants[0].price 
+    : 0;
+
+  // We also get the main image from the new images array
+  const mainImage = product.images && product.images.length > 0
+    ? product.images[0]
+    : '/images/sample.jpg'; // A fallback image
+
   return (
-    // The main container now uses className="card"
-    <div className="card">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden transform hover:-translate-y-1 transition-all duration-300">
       <Link to={`/product/${product._id}`}>
-        {/* The image now uses className="card-image" */}
-        <img className="card-image" src={product.imageUrl} alt={product.name} />
+        <img className="w-full h-48 object-cover" src={mainImage} alt={product.name} />
       </Link>
-      
-      {/* The info container now uses className="card-body" */}
-      <div className="card-body">
-        <div>
-          {/* The title now uses className="card-title" */}
-          <h3 className="card-title">
-            <Link to={`/product/${product._id}`}>{product.name}</Link>
-          </h3>
-        </div>
-        
-        {/* The price now uses className="card-price" */}
-        <p className="card-price">₹{product.price.toLocaleString('en-IN')}</p>
+      <div className="p-4">
+        <Link to={`/product/${product._id}`}>
+          <h3 className="text-lg font-semibold text-gray-800 truncate">{product.name}</h3>
+        </Link>
+        {/* <Rating value={product.rating} text={`${product.numReviews} reviews`} /> */}
+        <p className="text-xl font-bold text-gray-900 mt-2">
+          ₹{displayPrice.toLocaleString('en-IN')}
+        </p>
       </div>
     </div>
   );
