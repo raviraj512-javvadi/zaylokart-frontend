@@ -43,7 +43,7 @@ const HomeScreen = () => {
 
     return (
         <>
-            {/* --- NEW: Hero section from your code --- */}
+            {/* --- Hero section from your code --- */}
             {!category && !keyword && (
                 <section className="hero-section">
                     <h1 className="hero-title">Style Redefined</h1>
