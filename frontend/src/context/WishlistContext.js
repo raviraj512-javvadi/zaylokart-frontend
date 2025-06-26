@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useAuth } from './AuthContext';
-import API_URL from '../apiConfig'; // <-- 1. IMPORT THE API_URL
+import API_URL from '../apiConfig';
 
 const WishlistContext = createContext();
 
@@ -11,8 +11,10 @@ export const WishlistProvider = ({ children }) => {
   const fetchWishlist = useCallback(async () => {
     if (userInfo) {
       try {
-        // --- 2. USE THE FULL API_URL ---
         const response = await fetch(`${API_URL}/api/users/wishlist`, {
+          // --- THIS IS THE FIX ---
+          credentials: 'include',
+          // ----------------------
           headers: { Authorization: `Bearer ${userInfo.token}` },
         });
         const data = await response.json();
@@ -29,15 +31,18 @@ export const WishlistProvider = ({ children }) => {
     fetchWishlist();
   }, [fetchWishlist]);
 
-  const addToWishlist = async (product) => { // Now accepts the full product object
+  const addToWishlist = async (product) => {
     try {
-      const response = await fetch(`${API_URL}/api/users/wishlist`, { // <-- Use API_URL
+      const response = await fetch(`${API_URL}/api/users/wishlist`, {
         method: 'POST',
+        // --- THIS IS THE FIX ---
+        credentials: 'include',
+        // ----------------------
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${userInfo.token}`,
         },
-        body: JSON.stringify({ productId: product._id }), // Send the ID
+        body: JSON.stringify({ productId: product._id }),
       });
       const data = await response.json();
       if (response.ok) setWishlistItems(data);
@@ -48,8 +53,11 @@ export const WishlistProvider = ({ children }) => {
 
   const removeFromWishlist = async (productId) => {
     try {
-      const response = await fetch(`${API_URL}/api/users/wishlist/${productId}`, { // <-- Use API_URL
+      const response = await fetch(`${API_URL}/api/users/wishlist/${productId}`, {
         method: 'DELETE',
+        // --- THIS IS THE FIX ---
+        credentials: 'include',
+        // ----------------------
         headers: { Authorization: `Bearer ${userInfo.token}` },
       });
       const data = await response.json();
