@@ -2,6 +2,7 @@ import path from 'path';
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import cookieParser from 'cookie-parser'; // <-- Added back for authentication
 import connectDB from './config/db.js';
 
 import productRoutes from './routes/productRoutes.js';
@@ -13,42 +14,31 @@ dotenv.config();
 connectDB();
 const app = express();
 
-// CORS CONFIGURATION
+// CORS CONFIGURATION to allow credentials
+const allowedOrigins = [
+  'https://zaylokart.netlify.app',
+  'http://localhost:3000',
+];
+
 app.use(cors({
   origin: function (origin, callback) {
-    // --- DEBUGGING LINE ---
-    console.log('Incoming Origin:', origin); 
-
-    const allowedOrigins = [
-      'https://zaylokart.netlify.app',
-      'http://localhost:3000',
-      /--zaylokart\.netlify\.app$/
-    ];
-
-    if (!origin) {
-      return callback(null, true);
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
     }
-
-    const isAllowed = allowedOrigins.some(allowedOrigin => {
-      if (typeof allowedOrigin === 'string') {
-        return origin === allowedOrigin;
-      }
-      if (allowedOrigin instanceof RegExp) {
-        return allowedOrigin.test(origin);
-      }
-      return false;
-    });
-
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
+    return callback(null, true);
   },
   credentials: true
 }));
 
+// Body parser middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Cookie parser middleware - MUST come before API routes
+app.use(cookieParser());
 
 // API routes
 app.use('/api/products', productRoutes);
@@ -56,27 +46,48 @@ app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/upload', uploadRoutes);
 
+// Make uploads folder static
 const __dirname = path.resolve();
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 
-app.get('/', (req, res) => {
-  res.send('API is running...');
-});
+// Fallback for production: serve frontend build
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, '/frontend/build')));
 
-// Global 404 handler
+    app.get('*', (req, res) => 
+        res.sendFile(path.resolve(__dirname, 'frontend', 'build', 'index.html'))
+    );
+} else {
+    app.get('/', (req, res) => {
+        res.send('API is running...');
+    });
+}
+
+
+// Global 404 handler for API routes
 app.use((req, res, next) => {
-  res.status(404).json({ message: 'Not Found' });
+  const error = new Error(`Not Found - ${req.originalUrl}`);
+  res.status(404);
+  next(error);
 });
 
-// Error middleware
+// Global error middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-  res.status(statusCode).json({ message: err.message });
+  let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  let message = err.message;
+  
+  // Mongoose bad ObjectId
+  if (err.name === 'CastError' && err.kind === 'ObjectId') {
+    statusCode = 404;
+    message = 'Resource not found';
+  }
+
+  res.status(statusCode).json({
+    message: message,
+    stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+  });
 });
 
 const PORT = process.env.PORT || 5001;
 
-// ============= THIS IS THE ONLY LINE I HAVE CHANGED =============
 app.listen(PORT, () => console.log(`// SERVER DEPLOYMENT TEST: v1.1 // Server running on port ${PORT}`));
-// =================================================================
