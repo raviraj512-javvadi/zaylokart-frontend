@@ -10,9 +10,9 @@ import {
   deleteUser,
   getUserById,
   updateUser,
-  getWishlist,       // <-- Import wishlist functions
-  addToWishlist,     // <-- Import wishlist functions
-  removeFromWishlist,// <-- Import wishlist functions
+  getWishlist,
+  addToWishlist,
+  removeFromWishlist,
 } from '../controllers/userController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 
@@ -27,7 +27,7 @@ router
   .get(protect, getUserProfile)
   .put(protect, updateUserProfile);
 
-// --- NEW WISHLIST ROUTES ---
+// --- WISHLIST ROUTES ---
 router.route('/wishlist')
   .get(protect, getWishlist)
   .post(protect, addToWishlist);

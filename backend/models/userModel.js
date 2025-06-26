@@ -16,24 +16,22 @@ const userSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    // --- ADD THIS FIELD ---
     phone: {
       type: String,
-      required: [true, 'Phone number is required'], // Make it mandatory
+      required: [true, 'Phone number is required'],
     },
-    // --------------------
     isAdmin: {
       type: Boolean,
       required: true,
       default: false,
     },
-    // It is better to store the full address as an object
-    shippingAddress: {
-        address: { type: String },
-        city: { type: String },
-        postalCode: { type: String },
-        country: { type: String },
-    },
+    // --- THIS IS THE REQUIRED WISHLIST FIELD ---
+    wishlist: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product',
+      },
+    ],
   },
   {
     timestamps: true,
@@ -45,7 +43,7 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// Encrypt password using bcrypt
+// Encrypt password using bcrypt before saving
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     next();
