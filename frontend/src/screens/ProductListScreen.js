@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // Using both Link and useNavigate
 import { useAuth } from '../context/AuthContext';
 import API_URL from '../apiConfig';
 import { Edit, Trash2, PlusCircle } from 'lucide-react';
@@ -101,7 +101,6 @@ const ProductListScreen = () => {
                     </thead>
                     <tbody>
                         {products.map((product) => {
-                            // --- THIS IS THE CRITICAL FIX ---
                             // Safely get the price from the first variant to display in the list.
                             const displayPrice = product.variants && product.variants.length > 0 
                                 ? product.variants[0].price 
@@ -118,7 +117,12 @@ const ProductListScreen = () => {
                                     <td>{product.brand}</td>
                                     <td>
                                         <div className="action-buttons">
-                                             <button className="icon-btn" onClick={() => navigate(`/admin/product/${product._id}/edit`)}><Edit size={18} /></button>
+                                             {/* --- THIS IS THE FIX --- */}
+                                             {/* Using Link component instead of a button with navigate */}
+                                             <Link to={`/admin/product/${product._id}/edit`} className="icon-btn">
+                                                <Edit size={18} />
+                                             </Link>
+                                             {/* ------------------------- */}
                                              <button className="icon-btn-danger" onClick={() => deleteHandler(product._id)}><Trash2 size={18} /></button>
                                         </div>
                                     </td>
