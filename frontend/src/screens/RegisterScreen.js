@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import API_URL from '../apiConfig';
-import './LoginScreen.css'; 
 
 const RegisterScreen = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [phone, setPhone] = useState(''); // <-- 1. ADDED STATE FOR PHONE
-  const [message, setMessage] = useState(''); 
-  const { userInfo, login } = useAuth();
+  const [error, setError] = useState('');
+  
   const navigate = useNavigate();
+  const { userInfo, login } = useAuth();
 
+  // Redirect if already logged in
   useEffect(() => {
     if (userInfo) {
       navigate('/');
@@ -22,24 +23,19 @@ const RegisterScreen = () => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
+    setError('');
+
     if (password !== confirmPassword) {
-      setMessage('Passwords do not match');
-      return; // Stop submission if passwords don't match
-    }
-    // Added a check for the phone number
-    if (!phone) {
-        setMessage('Phone number is required');
-        return;
+      setError('Passwords do not match');
+      return;
     }
 
-    setMessage('');
     try {
-      const response = await fetch(`${API_URL}/api/users/register`, {
+      // --- THIS IS THE FIX ---
+      // The URL is now '/api/users' which is the correct endpoint for registration.
+      const response = await fetch(`${API_URL}/api/users`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        // <-- 2. ADDED PHONE TO THE REQUEST BODY
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password, phone }),
       });
 
@@ -47,48 +43,60 @@ const RegisterScreen = () => {
       if (!response.ok) {
         throw new Error(data.message || 'Failed to register');
       }
-      
+
+      // Automatically log the user in after successful registration
       login(data);
+      
+      // Navigate to the home page
+      navigate('/');
 
     } catch (err) {
-      setMessage(err.message);
+      setError(err.message);
     }
   };
 
   return (
-    <div className="login-container">
-      <form className="login-form" onSubmit={submitHandler}>
-        <h1>Sign Up</h1>
-        {message && <div className="error-message">{message}</div>}
-        <div className="form-group">
-          <label htmlFor="name">Name</label>
-          <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+    <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-lg">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Create your account</h2>
         </div>
-        <div className="form-group">
-          <label htmlFor="email">Email Address</label>
-          <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        </div>
+        <form className="mt-8 space-y-6" onSubmit={submitHandler}>
+          {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">{error}</div>}
+          
+          <div className="rounded-md shadow-sm -space-y-px">
+            <div>
+              <label htmlFor="name">Name</label>
+              <input id="name" name="name" type="text" value={name} onChange={(e) => setName(e.target.value)} required className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Full Name" />
+            </div>
+            <div className="pt-4">
+              <label htmlFor="email-address">Email address</label>
+              <input id="email-address" name="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Email address" />
+            </div>
+            <div className="pt-4">
+              <label htmlFor="phone">Phone Number</label>
+              <input id="phone" name="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Phone Number" />
+            </div>
+            <div className="pt-4">
+              <label htmlFor="password">Password</label>
+              <input id="password" name="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Password" />
+            </div>
+            <div className="pt-4">
+              <label htmlFor="confirm-password">Confirm Password</label>
+              <input id="confirm-password" name="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Confirm Password" />
+            </div>
+          </div>
 
-        {/* --- 3. ADDED PHONE NUMBER INPUT FIELD --- */}
-        <div className="form-group">
-          <label htmlFor="phone">Phone Number</label>
-          <input type="tel" id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+          <div>
+            <button type="submit" className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              Sign Up
+            </button>
+          </div>
+        </form>
+        <div className="text-sm text-center">
+          <p>Already have an account? <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">Sign In</Link></p>
         </div>
-        {/* -------------------------------------- */}
-
-        <div className="form-group">
-          <label htmlFor="password">Password</label>
-          <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        </div>
-        <div className="form-group">
-          <label htmlFor="confirmPassword">Confirm Password</label>
-          <input type="password" id="confirmPassword" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
-        </div>
-        <button type="submit" className="login-button">Sign Up</button>
-        <div className="register-link">
-          Already have an account? <Link to="/login">Login</Link>
-        </div>
-      </form>
+      </div>
     </div>
   );
 };
