@@ -1,30 +1,27 @@
 import React, { useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import API_URL from '../apiConfig';
-import './PlaceOrderScreen.css';
 
 const PlaceOrderScreen = () => {
+  const navigate = useNavigate();
   const { cartItems, shippingAddress, paymentMethod, clearCart } = useCart();
   const { userInfo } = useAuth();
-  const navigate = useNavigate();
+
+  // Calculations
+  const itemsPrice = Number(cartItems.reduce((acc, item) => acc + item.price * item.qty, 0).toFixed(2));
+  const shippingPrice = itemsPrice > 1000 ? 0 : 49; // Example shipping logic
+  const taxPrice = Number((0.18 * itemsPrice).toFixed(2)); // Example 18% tax
+  const totalPrice = (itemsPrice + shippingPrice + taxPrice).toFixed(2);
 
   useEffect(() => {
-    if (!shippingAddress?.address) {
+    if (!shippingAddress.address) {
       navigate('/shipping');
     } else if (!paymentMethod) {
       navigate('/payment');
     }
   }, [shippingAddress, paymentMethod, navigate]);
-
-  if (!cartItems || !shippingAddress?.address || !paymentMethod) {
-    return <div>Loading...</div>;
-  }
-
-  const itemsPrice = cartItems.reduce((acc, item) => acc + Number(item.qty) * Number(item.price), 0);
-  const shippingPrice = 49;
-  const totalPrice = itemsPrice + shippingPrice;
 
   const placeOrderHandler = async () => {
     try {
@@ -38,93 +35,79 @@ const PlaceOrderScreen = () => {
           orderItems: cartItems,
           shippingAddress,
           paymentMethod,
+          itemsPrice,
+          taxPrice,
+          shippingPrice,
           totalPrice,
         }),
       });
-      
+
       const createdOrder = await res.json();
       if (!res.ok) {
         throw new Error(createdOrder.message || 'Could not place order');
       }
       
       clearCart();
-      
-      // THE FINAL FIX IS HERE: The path now matches your App.js route
-      navigate(`/order/success/${createdOrder._id}`); 
+      navigate(`/order/success/${createdOrder._id}`);
+
     } catch (error) {
       alert(`Error: ${error.message}`);
     }
   };
 
   return (
-    <div className="placeorder-container">
-      <div className="placeorder-details">
-        <div className="placeorder-section">
-          <h2>Shipping Address</h2>
-          <p>
-            {shippingAddress.address}, {shippingAddress.city}<br />
-            {shippingAddress.postalCode}, {shippingAddress.country}
-          </p>
-        </div>
-
-        <div className="placeorder-section">
-          <h2>Payment Method</h2>
-          <p>
-            <strong>Method: </strong>
-            {paymentMethod}
-          </p>
-        </div>
-
-        <div className="placeorder-section">
-          <h2>Order Items</h2>
-          {cartItems.length === 0 ? (
-            <p>Your cart is empty.</p>
-          ) : (
-            <div className="order-items-list">
-              {cartItems.map((item) => (
-                <div key={item.product} className="order-item">
-                  <img
-                    src={item.imageUrl}
-                    alt={item.name}
-                    className="order-item-image"
-                  />
-                  <Link to={`/product/${item.product}`} className="order-item-name">
-                    {item.name} ({item.size})
-                  </Link>
-                  <div className="order-item-summary">
-                    {item.qty} x ₹{item.price.toLocaleString('en-IN')} = ₹
-                    {(item.qty * item.price).toLocaleString('en-IN')}
+    <div className="container mx-auto p-8">
+      <h1 className="text-3xl font-bold mb-6">Order Summary</h1>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="md:col-span-2 space-y-6">
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-2xl font-semibold mb-4">Shipping</h2>
+            <p><strong>Address:</strong> {shippingAddress.address}, {shippingAddress.city}, {shippingAddress.postalCode}, {shippingAddress.country}</p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-2xl font-semibold mb-4">Payment Method</h2>
+            <p><strong>Method:</strong> {paymentMethod}</p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-2xl font-semibold mb-4">Order Items</h2>
+            {cartItems.length === 0 ? <p>Your cart is empty</p> : (
+              <div className="space-y-4">
+                {cartItems.map((item, index) => (
+                  <div key={index} className="flex items-center">
+                    <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded mr-4" />
+                    <div className="flex-grow">
+                      <Link to={`/product/${item.product}`} className="font-semibold hover:underline">{item.name}</Link>
+                      <p className="text-sm text-gray-500">{item.ram} / {item.storage}</p>
+                    </div>
+                    <div className="text-right">
+                      {item.qty} x ₹{item.price.toLocaleString('en-IN')} = ₹{(item.qty * item.price).toLocaleString('en-IN')}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="md:col-span-1">
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-2xl font-semibold mb-4">Order Totals</h2>
+            <div className="space-y-2">
+              <p className="flex justify-between"><span>Items:</span> <span>₹{itemsPrice.toLocaleString('en-IN')}</span></p>
+              <p className="flex justify-between"><span>Shipping:</span> <span>₹{shippingPrice.toLocaleString('en-IN')}</span></p>
+              <p className="flex justify-between"><span>Tax:</span> <span>₹{taxPrice.toLocaleString('en-IN')}</span></p>
+              <hr className="my-2" />
+              <p className="flex justify-between font-bold text-xl"><span>Total:</span> <span>₹{totalPrice.toLocaleString('en-IN')}</span></p>
             </div>
-          )}
+            <button
+              type="button"
+              className="w-full bg-gray-800 text-white font-bold py-3 px-6 rounded mt-6 hover:bg-gray-700 transition-colors disabled:bg-gray-400"
+              disabled={cartItems.length === 0}
+              onClick={placeOrderHandler}
+            >
+              Confirm Place Order
+            </button>
+          </div>
         </div>
-      </div>
-      <div className="placeorder-summary-card">
-        <h2>Order Summary</h2>
-        <div className="summary-row">
-          <span>Items</span><span>₹{itemsPrice.toLocaleString('en-IN')}</span>
-        </div>
-        <div className="summary-row">
-          <span>Shipping</span><span>₹{shippingPrice.toLocaleString('en-IN')}</span>
-        </div>
-        <div className="summary-row total">
-          <span>Total</span>
-          <span>
-            ₹{totalPrice.toLocaleString('en-IN', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
-          </span>
-        </div>
-        <button
-          className="action-button"
-          disabled={cartItems.length === 0}
-          onClick={placeOrderHandler}
-        >
-          Confirm Place Order
-        </button>
       </div>
     </div>
   );

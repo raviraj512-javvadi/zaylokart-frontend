@@ -5,28 +5,39 @@ import Order from '../models/orderModel.js';
 // @route   POST /api/orders
 // @access  Private
 const addOrderItems = asyncHandler(async (req, res) => {
-  const { orderItems, shippingAddress, paymentMethod, totalPrice } = req.body;
+  const {
+    orderItems,
+    shippingAddress,
+    paymentMethod,
+    itemsPrice,
+    taxPrice,
+    shippingPrice,
+    totalPrice,
+  } = req.body;
 
   if (orderItems && orderItems.length === 0) {
     res.status(400);
     throw new Error('No order items');
   } else {
     const order = new Order({
-      orderItems: orderItems.map(item => ({
-        name: item.name,
-        qty: item.qty,
-        image: item.imageUrl,
-        price: item.price,
-        size: item.size,
-        product: item.product, 
+      // This map function now correctly handles the full order item object
+      // sent from the frontend, including variant details.
+      orderItems: orderItems.map((x) => ({
+        ...x,
+        product: x.product, // The product ID is already in the item
+        _id: undefined, // Let MongoDB create a new _id for the order item
       })),
       user: req.user._id,
       shippingAddress,
       paymentMethod,
+      itemsPrice,
+      taxPrice,
+      shippingPrice,
       totalPrice,
     });
 
     const createdOrder = await order.save();
+
     res.status(201).json(createdOrder);
   }
 });
@@ -43,9 +54,11 @@ const getMyOrders = asyncHandler(async (req, res) => {
 // @route   GET /api/orders/:id
 // @access  Private
 const getOrderById = asyncHandler(async (req, res) => {
-  // Also populate the user's name and email from the associated user document
-  const order = await Order.findById(req.params.id).populate('user', 'name email');
-  
+  const order = await Order.findById(req.params.id).populate(
+    'user',
+    'name email'
+  );
+
   if (order) {
     res.json(order);
   } else {
@@ -63,7 +76,6 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
   if (order) {
     order.isPaid = true;
     order.paidAt = Date.now();
-    // Save the payment result details from the payment gateway (e.g., PayPal)
     order.paymentResult = {
       id: req.body.id,
       status: req.body.status,
@@ -72,6 +84,7 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
     };
 
     const updatedOrder = await order.save();
+
     res.json(updatedOrder);
   } else {
     res.status(404);
@@ -88,7 +101,9 @@ const updateOrderToDelivered = asyncHandler(async (req, res) => {
   if (order) {
     order.isDelivered = true;
     order.deliveredAt = Date.now();
+
     const updatedOrder = await order.save();
+
     res.json(updatedOrder);
   } else {
     res.status(404);
@@ -100,7 +115,6 @@ const updateOrderToDelivered = asyncHandler(async (req, res) => {
 // @route   GET /api/orders
 // @access  Private/Admin
 const getOrders = asyncHandler(async (req, res) => {
-  // FIX: Changed User.find({}) to Order.find({})
   const orders = await Order.find({}).populate('user', 'id name');
   res.json(orders);
 });
@@ -109,7 +123,7 @@ export {
   addOrderItems,
   getMyOrders,
   getOrderById,
-  updateOrderToPaid, // <-- Added the missing export
+  updateOrderToPaid,
   updateOrderToDelivered,
-  getOrders
+  getOrders,
 };

@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const orderSchema = new mongoose.Schema(
+const orderSchema = mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -13,7 +13,11 @@ const orderSchema = new mongoose.Schema(
         qty: { type: Number, required: true },
         image: { type: String, required: true },
         price: { type: Number, required: true },
-        size: { type: String, required: true }, // <-- 1. ADDED THIS FIELD
+        // --- NEW: Storing variant details in the order ---
+        ram: { type: String, required: false },
+        storage: { type: String, required: false },
+        variant: { type: String, required: true }, // Store the unique variant ID
+        // ------------------------------------------------
         product: {
           type: mongoose.Schema.Types.ObjectId,
           required: true,
@@ -27,9 +31,30 @@ const orderSchema = new mongoose.Schema(
       postalCode: { type: String, required: true },
       country: { type: String, required: true },
     },
-    paymentMethod: { // <-- 2. ADDED THIS FIELD
+    paymentMethod: {
       type: String,
       required: true,
+    },
+    paymentResult: {
+      id: { type: String },
+      status: { type: String },
+      update_time: { type: String },
+      email_address: { type: String },
+    },
+    itemsPrice: {
+      type: Number,
+      required: true,
+      default: 0.0,
+    },
+    taxPrice: {
+      type: Number,
+      required: true,
+      default: 0.0,
+    },
+    shippingPrice: {
+      type: Number,
+      required: true,
+      default: 0.0,
     },
     totalPrice: {
       type: Number,
