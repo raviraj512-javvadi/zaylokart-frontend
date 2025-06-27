@@ -9,11 +9,13 @@ const PlaceOrderScreen = () => {
   const { cartItems, shippingAddress, paymentMethod, clearCart } = useCart();
   const { userInfo } = useAuth();
 
-  // Calculations
+  // --- THIS IS THE FIX ---
+  // Calculations are updated to remove tax.
   const itemsPrice = Number(cartItems.reduce((acc, item) => acc + item.price * item.qty, 0).toFixed(2));
-  const shippingPrice = itemsPrice > 1000 ? 0 : 49; // Example shipping logic
-  const taxPrice = Number((0.18 * itemsPrice).toFixed(2)); // Example 18% tax
-  const totalPrice = (itemsPrice + shippingPrice + taxPrice).toFixed(2);
+  const shippingPrice = itemsPrice > 1000 ? 0 : 49;
+  const taxPrice = 0; // Tax is now set to 0.
+  const totalPrice = (itemsPrice + shippingPrice).toFixed(2); // Total no longer includes tax.
+  // -------------------------
 
   useEffect(() => {
     if (!shippingAddress.address) {
@@ -36,7 +38,7 @@ const PlaceOrderScreen = () => {
           shippingAddress,
           paymentMethod,
           itemsPrice,
-          taxPrice,
+          taxPrice, // Sending tax as 0
           shippingPrice,
           totalPrice,
         }),
@@ -94,7 +96,7 @@ const PlaceOrderScreen = () => {
             <div className="space-y-2">
               <p className="flex justify-between"><span>Items:</span> <span>₹{itemsPrice.toLocaleString('en-IN')}</span></p>
               <p className="flex justify-between"><span>Shipping:</span> <span>₹{shippingPrice.toLocaleString('en-IN')}</span></p>
-              <p className="flex justify-between"><span>Tax:</span> <span>₹{taxPrice.toLocaleString('en-IN')}</span></p>
+              {/* --- THIS IS THE FIX: The tax row is now removed from view --- */}
               <hr className="my-2" />
               <p className="flex justify-between font-bold text-xl"><span>Total:</span> <span>₹{totalPrice.toLocaleString('en-IN')}</span></p>
             </div>
