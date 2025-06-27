@@ -28,6 +28,7 @@ export const AuthProvider = ({ children }) => {
     setUserInfo(userData);
   };
 
+  
   // The logout function clears the state
   const logout = () => {
     setUserInfo(null);
@@ -44,3 +45,5 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const useAuth = () => useContext(AuthContext);
+
+

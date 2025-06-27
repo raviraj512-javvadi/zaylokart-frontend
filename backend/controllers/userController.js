@@ -4,9 +4,13 @@ import User from '../models/userModel.js';
 
 // This is a standalone helper function to create the token
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+  // --- THIS IS THE FINAL FIX ---
+  // The token payload MUST match what the middleware expects.
+  // We now create the token with the key 'userId'.
+  return jwt.sign({ userId: id }, process.env.JWT_SECRET, {
     expiresIn: '30d',
   });
+  // -----------------------------
 };
 
 // @desc    Auth user & get token (Login)
@@ -23,7 +27,7 @@ const authUser = asyncHandler(async (req, res) => {
       email: user.email,
       isAdmin: user.isAdmin,
       phone: user.phone,
-      token: generateToken(user._id),
+      token: generateToken(user._id), // This will now be a correctly formatted token
     });
   } else {
     res.status(401);
@@ -60,16 +64,14 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
-// --- THIS IS THE FIX: ADDED LOGOUT FUNCTION BACK ---
-// @desc    Logout user / clear cookie
+// --- ALL OTHER FUNCTIONS REMAIN THE SAME ---
+
+// @desc    Logout user
 // @route   POST /api/users/logout
 // @access  Public
 const logoutUser = (req, res) => {
-  // Note: This method assumes cookie-based auth. For token-based, the frontend just deletes the token.
-  // However, having a logout endpoint is good practice.
   res.status(200).json({ message: 'Logout successful' });
 };
-// ----------------------------------------------------
 
 // @desc    Get user profile
 // @route   GET /api/users/profile
@@ -185,7 +187,7 @@ const updateUser = asyncHandler(async (req, res) => {
 export {
   authUser,
   registerUser,
-  logoutUser, // <-- ADDED LOGOUT TO THE EXPORT LIST
+  logoutUser,
   getUserProfile,
   updateUserProfile,
   getUsers,
