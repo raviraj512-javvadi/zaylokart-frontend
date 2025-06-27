@@ -35,10 +35,8 @@ const LoginScreen = () => {
         throw new Error(data.message || 'Failed to login');
       }
 
-      // --- THIS IS THE FIX ---
       // Call the login function from AuthContext to save the user data globally
       login(data);
-      // --------------------
 
     } catch (err) {
       setError(err.message);
