@@ -1,28 +1,27 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
-import { WishlistProvider } from './context/WishlistContext'; // <-- 1. ADD THIS IMPORT
+import { WishlistProvider } from './context/WishlistContext';
 import './index.css';
 import App from './App';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
+// This is the main entry point of the application.
+// The Router must wrap all components that use routing features.
+// The Providers wrap the App to make their state globally available.
 root.render(
   <React.StrictMode>
-    {/* 1. BrowserRouter for routing */}
-    <BrowserRouter>
-      {/* 2. AuthProvider for user login state */}
+    <Router>
       <AuthProvider>
-        {/* 3. CartProvider for shopping cart state */}
-        <CartProvider>
-          {/* 4. WishlistProvider for wishlist state */}
-          <WishlistProvider> {/* <-- 2. ADD THIS WRAPPER */}
+        <WishlistProvider>
+          <CartProvider>
             <App />
-          </WishlistProvider>
-        </CartProvider>
+          </CartProvider>
+        </WishlistProvider>
       </AuthProvider>
-    </BrowserRouter>
+    </Router>
   </React.StrictMode>
 );
