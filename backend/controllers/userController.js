@@ -1,7 +1,8 @@
 import asyncHandler from 'express-async-handler';
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
-import crypto from 'crypto'; // Added for password reset
+import crypto from 'crypto';
+import sendEmail from '../utils/sendEmail.js'; // <-- 1. IMPORT THE EMAIL UTILITY
 
 // This is a standalone helper function to create the token
 const generateToken = (id) => {
@@ -101,7 +102,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     }
 });
 
-// --- NEW PASSWORD RESET FUNCTIONS ---
+// --- UPDATED PASSWORD RESET FUNCTION ---
 
 // @desc    Forgot password
 // @route   POST /api/users/forgotpassword
@@ -110,8 +111,9 @@ const forgotPassword = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email: req.body.email });
 
   if (!user) {
-    res.status(404);
-    throw new Error('There is no user with that email');
+    // To prevent email enumeration attacks, don't reveal if the user exists.
+    // Still send a success response.
+    return res.status(200).json({ success: true, message: `If an account with that email exists, a reset link has been sent.` });
   }
 
   // Get reset token
@@ -123,21 +125,34 @@ const forgotPassword = asyncHandler(async (req, res) => {
     .update(resetToken)
     .digest('hex');
 
-  // Set expire time to 10 minutes
-  user.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+  // Set expire time to 15 minutes
+  user.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
 
   await user.save({ validateBeforeSave: false });
 
-  // Create reset URL
-  const resetUrl = `${req.protocol}://${req.get('host')}/resetpassword/${resetToken}`;
+  // --- 2. THIS IS THE UPDATE ---
+  // Create the full reset URL using the variable from your Render environment
+  const resetUrl = `${process.env.FRONTEND_URL}/resetpassword/${resetToken}`;
 
-  // In a real app, you would email this URL to the user.
-  // For this example, we will send it back in the response for testing.
-  res.status(200).json({
-    success: true,
-    message: `An email has been sent to ${user.email} with password reset instructions.`,
-    resetUrl: resetUrl, // For testing purposes
-  });
+  try {
+    // Call our new email utility to send the email via Brevo
+    await sendEmail({
+      email: user.email,
+      name: user.name,
+      subject: 'ZayloKart - Password Reset Request',
+      resetUrl,
+    });
+
+    res.status(200).json({ success: true, message: `Email sent to ${user.email}` });
+  } catch (err) {
+    console.error(err);
+    // Clear the token if the email fails to send
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    throw new Error('Email could not be sent');
+  }
 });
 
 // @desc    Reset password
@@ -152,7 +167,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 
   const user = await User.findOne({
     resetPasswordToken,
-    resetPasswordExpire: { $gt: Date.now() }, // Check if token is not expired
+    resetPasswordExpire: { $gt: Date.now() },
   });
 
   if (!user) {
@@ -268,6 +283,6 @@ export {
   getWishlist,
   addToWishlist,
   removeFromWishlist,
-  forgotPassword, // Added
-  resetPassword,  // Added
+  forgotPassword,
+  resetPassword,
 };
