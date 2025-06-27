@@ -17,17 +17,14 @@ const authUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
 
   if (user && (await user.matchPassword(password))) {
-    // --- THIS IS THE FINAL FIX ---
-    // We now generate the token AND include it in the JSON response.
     res.json({
       _id: user._id,
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
       phone: user.phone,
-      token: generateToken(user._id), // This line was missing
+      token: generateToken(user._id),
     });
-    // -----------------------------
   } else {
     res.status(401);
     throw new Error('Invalid email or password');
@@ -55,7 +52,7 @@ const registerUser = asyncHandler(async (req, res) => {
       email: user.email,
       isAdmin: user.isAdmin,
       phone: user.phone,
-      token: generateToken(user._id), // Also include token on registration
+      token: generateToken(user._id),
     });
   } else {
     res.status(400);
@@ -63,7 +60,16 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
-// --- ALL OTHER FUNCTIONS REMAIN THE SAME ---
+// --- THIS IS THE FIX: ADDED LOGOUT FUNCTION BACK ---
+// @desc    Logout user / clear cookie
+// @route   POST /api/users/logout
+// @access  Public
+const logoutUser = (req, res) => {
+  // Note: This method assumes cookie-based auth. For token-based, the frontend just deletes the token.
+  // However, having a logout endpoint is good practice.
+  res.status(200).json({ message: 'Logout successful' });
+};
+// ----------------------------------------------------
 
 // @desc    Get user profile
 // @route   GET /api/users/profile
@@ -91,7 +97,6 @@ const updateUserProfile = asyncHandler(async (req, res) => {
             user.password = req.body.password;
         }
         const updatedUser = await user.save();
-        // Return new info AND a new token in case user details in token need updating
         res.json({ _id: updatedUser._id, name: updatedUser.name, email: updatedUser.email, isAdmin: updatedUser.isAdmin, phone: updatedUser.phone, token: generateToken(updatedUser._id) });
     } else {
         res.status(404);
@@ -177,12 +182,10 @@ const updateUser = asyncHandler(async (req, res) => {
   }
 });
 
-// Note: We are not exporting a separate generateToken function
-// as it's only used within this file.
 export {
   authUser,
   registerUser,
-  // logoutUser, // Assuming you might add this later
+  logoutUser, // <-- ADDED LOGOUT TO THE EXPORT LIST
   getUserProfile,
   updateUserProfile,
   getUsers,
