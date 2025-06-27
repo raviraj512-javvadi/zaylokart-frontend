@@ -13,22 +13,21 @@ import {
   getWishlist,
   addToWishlist,
   removeFromWishlist,
+  forgotPassword, // <-- Added
+  resetPassword,  // <-- Added
 } from '../controllers/userController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 
-// --- Reorganized Routes ---
-
-// Public routes
+// --- Public Routes ---
 router.route('/').post(registerUser).get(protect, admin, getUsers);
-
-// --- THIS IS THE FIX ---
-// The route is now '/login' to match the frontend
 router.post('/login', authUser);
-// -----------------------
-
 router.post('/logout', logoutUser);
+// --- ADDED NEW PASSWORD RESET ROUTES ---
+router.post('/forgotpassword', forgotPassword);
+router.put('/resetpassword/:resettoken', resetPassword);
+// -------------------------------------
 
-// Private routes for logged-in users
+// --- Private Routes for Logged-in Users ---
 router
   .route('/profile')
   .get(protect, getUserProfile)
@@ -42,7 +41,7 @@ router.route('/wishlist')
 router.route('/wishlist/:id')
   .delete(protect, removeFromWishlist);
 
-// Private routes for admins only
+// --- Private Routes for Admins Only ---
 router
   .route('/:id')
   .delete(protect, admin, deleteUser)

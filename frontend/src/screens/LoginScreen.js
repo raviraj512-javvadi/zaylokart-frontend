@@ -34,12 +34,7 @@ const LoginScreen = () => {
       if (!response.ok) {
         throw new Error(data.message || 'Failed to login');
       }
-
-      // --- THIS IS THE FIX ---
-      // Call the login function from AuthContext to save the user data globally
       login(data);
-      // --------------------
-
     } catch (err) {
       setError(err.message);
     }
@@ -63,6 +58,17 @@ const LoginScreen = () => {
               <input id="password" name="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Password" />
             </div>
           </div>
+
+          {/* --- ADDED "Forgot Password?" LINK --- */}
+          <div className="flex items-center justify-end">
+            <div className="text-sm">
+              <Link to="/forgotpassword" className="font-medium text-indigo-600 hover:text-indigo-500">
+                Forgot your password?
+              </Link>
+            </div>
+          </div>
+          {/* ------------------------------------ */}
+
           <div>
             <button type="submit" className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
               Sign in

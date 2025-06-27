@@ -1,16 +1,13 @@
 import asyncHandler from 'express-async-handler';
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
+import crypto from 'crypto'; // Added for password reset
 
 // This is a standalone helper function to create the token
 const generateToken = (id) => {
-  // --- THIS IS THE FINAL FIX ---
-  // The token payload MUST match what the middleware expects.
-  // We now create the token with the key 'userId'.
   return jwt.sign({ userId: id }, process.env.JWT_SECRET, {
     expiresIn: '30d',
   });
-  // -----------------------------
 };
 
 // @desc    Auth user & get token (Login)
@@ -27,7 +24,7 @@ const authUser = asyncHandler(async (req, res) => {
       email: user.email,
       isAdmin: user.isAdmin,
       phone: user.phone,
-      token: generateToken(user._id), // This will now be a correctly formatted token
+      token: generateToken(user._id),
     });
   } else {
     res.status(401);
@@ -63,8 +60,6 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error('Invalid user data');
   }
 });
-
-// --- ALL OTHER FUNCTIONS REMAIN THE SAME ---
 
 // @desc    Logout user
 // @route   POST /api/users/logout
@@ -106,6 +101,82 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     }
 });
 
+// --- NEW PASSWORD RESET FUNCTIONS ---
+
+// @desc    Forgot password
+// @route   POST /api/users/forgotpassword
+// @access  Public
+const forgotPassword = asyncHandler(async (req, res) => {
+  const user = await User.findOne({ email: req.body.email });
+
+  if (!user) {
+    res.status(404);
+    throw new Error('There is no user with that email');
+  }
+
+  // Get reset token
+  const resetToken = crypto.randomBytes(20).toString('hex');
+
+  // Hash token and set to resetPasswordToken field
+  user.resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  // Set expire time to 10 minutes
+  user.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+
+  await user.save({ validateBeforeSave: false });
+
+  // Create reset URL
+  const resetUrl = `${req.protocol}://${req.get('host')}/resetpassword/${resetToken}`;
+
+  // In a real app, you would email this URL to the user.
+  // For this example, we will send it back in the response for testing.
+  res.status(200).json({
+    success: true,
+    message: `An email has been sent to ${user.email} with password reset instructions.`,
+    resetUrl: resetUrl, // For testing purposes
+  });
+});
+
+// @desc    Reset password
+// @route   PUT /api/users/resetpassword/:resettoken
+// @access  Public
+const resetPassword = asyncHandler(async (req, res) => {
+  // Get hashed token
+  const resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(req.params.resettoken)
+    .digest('hex');
+
+  const user = await User.findOne({
+    resetPasswordToken,
+    resetPasswordExpire: { $gt: Date.now() }, // Check if token is not expired
+  });
+
+  if (!user) {
+    res.status(400);
+    throw new Error('Invalid or expired token');
+  }
+
+  // Set new password
+  user.password = req.body.password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+  await user.save();
+
+  // Generate a new login token for convenience
+  const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+    expiresIn: '30d',
+  });
+
+  res.status(200).json({
+    success: true,
+    message: 'Password updated successfully',
+    token: token,
+  });
+});
 
 // --- WISHLIST CONTROLLERS ---
 const getWishlist = asyncHandler(async (req, res) => {
@@ -197,4 +268,6 @@ export {
   getWishlist,
   addToWishlist,
   removeFromWishlist,
+  forgotPassword, // Added
+  resetPassword,  // Added
 };

@@ -25,13 +25,16 @@ const userSchema = mongoose.Schema(
       required: true,
       default: false,
     },
-    // --- THIS IS THE REQUIRED WISHLIST FIELD ---
     wishlist: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product',
       },
     ],
+    // --- ADDED THESE NEW FIELDS FOR PASSWORD RESET ---
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
+    // ---------------------------------------------
   },
   {
     timestamps: true,
