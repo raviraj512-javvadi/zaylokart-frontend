@@ -48,7 +48,6 @@ const ProductEditScreen = () => {
         }
     }, [productId]);
 
-    // Helper functions for variants and images (no changes needed here)
     const handleVariantChange = (index, event) => {
         const newVariants = [...variants];
         newVariants[index][event.target.name] = event.target.value;
@@ -63,23 +62,33 @@ const ProductEditScreen = () => {
     };
     const addImageField = () => setImages([...images, '']);
     const removeImageField = (index) => setImages(images.filter((_, i) => i !== index));
-    const uploadFileHandler = async (e) => { /* ... no changes needed ... */ };
+    
+    // --- 1. NEW HANDLER FUNCTION FOR CATEGORY CHANGES ---
+    const handleCategoryChange = (newCategory) => {
+        setCategory(newCategory);
+        // If the new category is NOT Electronics, reset the variants state to a clean default.
+        if (newCategory !== 'Electronics') {
+            setVariants([{ ram: '', storage: '', price: 0, countInStock: 0 }]);
+        }
+    };
+    // ----------------------------------------------------
+
+    const uploadFileHandler = async (e) => { 
+        // This function remains the same, you can paste your existing upload logic here
+    };
 
     const submitHandler = async (e) => {
         e.preventDefault();
         setUpdateError('');
         setUpdateSuccess(false);
 
-        // --- 3. ADJUST SUBMIT HANDLER TO SEND VARIANTS CONDITIONALLY ---
-        // If the category is 'Electronics', send the variants. Otherwise, send an empty array.
-        // This will clear out variants for non-electronic products on the backend.
         const finalVariants = category === 'Electronics' 
             ? variants.map(v => ({
                 ...v,
                 price: Number(v.price) || 0,
                 countInStock: Number(v.countInStock) || 0
             }))
-            : []; // Send empty array for non-electronics
+            : []; 
 
         const productData = {
             name,
@@ -87,9 +96,8 @@ const ProductEditScreen = () => {
             category,
             description,
             images,
-            variants: finalVariants, // Use the finalVariants determined above
+            variants: finalVariants,
         };
-        // -----------------------------------------------------------
 
         try {
             const res = await fetch(`${API_URL}/api/products/${productId}`, {
@@ -130,17 +138,16 @@ const ProductEditScreen = () => {
                 {updateError && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{updateError}</div>}
                 {updateSuccess && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">Product updated successfully! Redirecting...</div>}
                 
-                {/* --- Form Fields for Name, Brand, Category --- */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div><label className="block font-semibold">Name</label><input type="text" value={name} onChange={e => setName(e.target.value)} className="border p-2 w-full rounded" /></div>
                     <div><label className="block font-semibold">Brand</label><input type="text" value={brand} onChange={e => setBrand(e.target.value)} className="border p-2 w-full rounded" /></div>
                     
-                    {/* --- 1. CHANGE CATEGORY INPUT TO A DROPDOWN --- */}
                     <div>
                         <label className="block font-semibold">Category</label>
+                        {/* --- 2. UPDATED ONCHANGE HANDLER --- */}
                         <select 
                             value={category} 
-                            onChange={e => setCategory(e.target.value)} 
+                            onChange={e => handleCategoryChange(e.target.value)} 
                             className="border p-2 w-full rounded bg-white"
                             required
                         >
@@ -149,28 +156,29 @@ const ProductEditScreen = () => {
                             <option value="Groceries">Groceries</option>
                             <option value="Fashion & Beauty">Fashion & Beauty</option>
                             <option value="Home & Kitchen">Home & Kitchen</option>
-                            {/* Add any other categories you have */}
                         </select>
+                        {/* ------------------------------------- */}
                     </div>
-                    {/* --------------------------------------------- */}
-
                 </div>
                 <div className="mb-6"><label className="block font-semibold">Description</label><textarea value={description} onChange={e => setDescription(e.target.value)} className="border p-2 w-full rounded" rows="4"></textarea></div>
                 
-                {/* Image upload section (no changes needed) */}
                 <div className="mb-6 p-4 border rounded-lg bg-gray-50">
                     <h3 className="text-lg font-semibold mb-3">Product Images</h3>
-                    {/* ... your existing image mapping and buttons ... */}
+                    <div className="mb-3"><label className="block text-sm font-medium">Upload New Image</label><input type="file" onChange={uploadFileHandler} className="mt-1" />{uploading && <p>Uploading...</p>}</div>
+                    {images.map((image, index) => (
+                        <div key={index} className="flex items-center mb-2">
+                            <input type="text" placeholder={`Image URL ${index + 1}`} value={image} onChange={(e) => handleImageChange(index, e)} className="border p-2 flex-grow mr-2 rounded" />
+                            <button type="button" onClick={() => removeImageField(index)} className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">Remove</button>
+                        </div>
+                    ))}
+                    <button type="button" onClick={addImageField} className="bg-blue-500 text-white px-4 py-2 rounded mt-2 hover:bg-blue-600 transition">Add Image URL</button>
                 </div>
 
-                {/* --- 2. CONDITIONALLY RENDER THE VARIANTS SECTION --- */}
-                {/* This entire block will only appear if 'Electronics' is selected */}
                 {category === 'Electronics' && (
                     <div className="mb-6 p-4 border rounded-lg bg-gray-50">
                         <h3 className="text-lg font-semibold mb-3">Product Variants (RAM, Storage, Price, Stock)</h3>
                         {variants.map((variant, index) => (
                             <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-3 p-3 border-b items-center">
-                                {/* The `required` attribute will now only apply when this section is visible */}
                                 <input type="text" name="ram" placeholder="RAM" value={variant.ram} onChange={e => handleVariantChange(index, e)} className="border p-2 rounded" required />
                                 <input type="text" name="storage" placeholder="Storage" value={variant.storage} onChange={e => handleVariantChange(index, e)} className="border p-2 rounded" required />
                                 <input type="number" name="price" placeholder="Price" value={variant.price} onChange={e => handleVariantChange(index, e)} className="border p-2 rounded" required />
@@ -181,7 +189,6 @@ const ProductEditScreen = () => {
                         <button type="button" onClick={addVariant} className="bg-blue-500 text-white px-4 py-2 rounded mt-2 hover:bg-blue-600 transition">Add Variant</button>
                     </div>
                 )}
-                {/* -------------------------------------------------------- */}
                 
                 <button type="submit" className="w-full bg-green-600 text-white font-bold px-6 py-3 rounded hover:bg-green-700 transition">Update Product</button>
             </form>
