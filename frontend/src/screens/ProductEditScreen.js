@@ -8,13 +8,16 @@ const ProductEditScreen = () => {
     const navigate = useNavigate();
     const { userInfo } = useAuth();
 
+    // --- 1. ADD STATE FOR BASE PRICE AND STOCK ---
     const [name, setName] = useState('');
+    const [price, setPrice] = useState(0);
+    const [countInStock, setCountInStock] = useState(0);
     const [brand, setBrand] = useState('');
     const [category, setCategory] = useState('');
     const [description, setDescription] = useState('');
     const [images, setImages] = useState(['']); 
     const [variants, setVariants] = useState([{ ram: '', storage: '', price: 0, countInStock: 0 }]);
-
+    
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [updateError, setUpdateError] = useState('');
@@ -30,6 +33,9 @@ const ProductEditScreen = () => {
                 if (!response.ok) throw new Error('Failed to fetch product details');
                 
                 setName(data.name);
+                // --- 2. POPULATE BASE PRICE AND STOCK FROM FETCHED DATA ---
+                setPrice(data.price);
+                setCountInStock(data.countInStock);
                 setBrand(data.brand);
                 setCategory(data.category);
                 setDescription(data.description);
@@ -48,6 +54,7 @@ const ProductEditScreen = () => {
         }
     }, [productId]);
 
+    // All helper functions remain the same
     const handleVariantChange = (index, event) => {
         const newVariants = [...variants];
         newVariants[index][event.target.name] = event.target.value;
@@ -62,49 +69,36 @@ const ProductEditScreen = () => {
     };
     const addImageField = () => setImages([...images, '']);
     const removeImageField = (index) => setImages(images.filter((_, i) => i !== index));
-    
     const handleCategoryChange = (newCategory) => {
         setCategory(newCategory);
         if (newCategory !== 'Electronics') {
             setVariants([{ ram: '', storage: '', price: 0, countInStock: 0 }]);
         }
     };
-
-    // --- THIS FUNCTION IS NOW FILLED IN TO FIX THE ERROR ---
     const uploadFileHandler = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
         const formData = new FormData();
         formData.append('image', file);
-        setUploading(true); // This makes setUploading "used"
-
+        setUploading(true);
         try {
             const response = await fetch(`${API_URL}/api/upload`, {
                 method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${userInfo.token}`,
-                },
+                headers: { Authorization: `Bearer ${userInfo.token}` },
                 body: formData,
             });
-
             const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.message || 'Image upload failed');
-            }
-
+            if (!response.ok) throw new Error(data.message || 'Image upload failed');
             const newImages = [...images];
             newImages[0] = data.image; 
             setImages(newImages);
-
         } catch (error) {
             console.error(error);
             setUpdateError(error.message);
         } finally {
-            setUploading(false); // This also makes setUploading "used"
+            setUploading(false);
         }
     };
-    // --------------------------------------------------------
 
     const submitHandler = async (e) => {
         e.preventDefault();
@@ -119,8 +113,15 @@ const ProductEditScreen = () => {
             }))
             : []; 
 
+        // --- 3. ADD BASE PRICE AND STOCK TO SUBMISSION DATA ---
         const productData = {
-            name, brand, category, description, images,
+            name,
+            price: Number(price) || 0,
+            countInStock: Number(countInStock) || 0,
+            brand,
+            category,
+            description,
+            images,
             variants: finalVariants,
         };
 
@@ -133,17 +134,11 @@ const ProductEditScreen = () => {
                 },
                 body: JSON.stringify(productData),
             });
-
             const data = await res.json();
-            if (!res.ok) {
-                throw new Error(data.message || 'Failed to update product');
-            }
+            if (!res.ok) throw new Error(data.message || 'Failed to update product');
             
             setUpdateSuccess(true);
-            setTimeout(() => {
-                navigate('/admin/productlist');
-            }, 2000);
-
+            setTimeout(() => navigate('/admin/productlist'), 2000);
         } catch (error) {
             setUpdateError(error.message);
         }
@@ -163,9 +158,12 @@ const ProductEditScreen = () => {
                 {updateError && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{updateError}</div>}
                 {updateSuccess && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">Product updated successfully! Redirecting...</div>}
                 
+                {/* --- 4. ADDED PRICE AND STOCK INPUT FIELDS TO THE FORM --- */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div><label className="block font-semibold">Name</label><input type="text" value={name} onChange={e => setName(e.target.value)} className="border p-2 w-full rounded" /></div>
-                    <div><label className="block font-semibold">Brand</label><input type="text" value={brand} onChange={e => setBrand(e.target.value)} className="border p-2 w-full rounded" /></div>
+                    <div><label className="block font-semibold">Name</label><input type="text" value={name} onChange={e => setName(e.target.value)} className="border p-2 w-full rounded" required /></div>
+                    <div><label className="block font-semibold">Brand</label><input type="text" value={brand} onChange={e => setBrand(e.target.value)} className="border p-2 w-full rounded" required /></div>
+                    <div><label className="block font-semibold">Base Price</label><input type="number" step="0.01" value={price} onChange={e => setPrice(e.target.value)} className="border p-2 w-full rounded" required /></div>
+                    <div><label className="block font-semibold">Base Stock</label><input type="number" value={countInStock} onChange={e => setCountInStock(e.target.value)} className="border p-2 w-full rounded" required /></div>
                     <div>
                         <label className="block font-semibold">Category</label>
                         <select 
@@ -182,7 +180,7 @@ const ProductEditScreen = () => {
                         </select>
                     </div>
                 </div>
-                <div className="mb-6"><label className="block font-semibold">Description</label><textarea value={description} onChange={e => setDescription(e.target.value)} className="border p-2 w-full rounded" rows="4"></textarea></div>
+                <div className="mb-6"><label className="block font-semibold">Description</label><textarea value={description} onChange={e => setDescription(e.target.value)} className="border p-2 w-full rounded" rows="4" required></textarea></div>
                 
                 <div className="mb-6 p-4 border rounded-lg bg-gray-50">
                     <h3 className="text-lg font-semibold mb-3">Product Images</h3>
@@ -198,12 +196,13 @@ const ProductEditScreen = () => {
 
                 {category === 'Electronics' && (
                     <div className="mb-6 p-4 border rounded-lg bg-gray-50">
-                        <h3 className="text-lg font-semibold mb-3">Product Variants (RAM, Storage, Price, Stock)</h3>
+                        <h3 className="text-lg font-semibold mb-3">Product Variants (RAM, Storage, etc.)</h3>
+                        <p className="text-sm text-gray-500 mb-3">Prices set here will override the base price for that specific variant.</p>
                         {variants.map((variant, index) => (
                             <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-3 p-3 border-b items-center">
                                 <input type="text" name="ram" placeholder="RAM" value={variant.ram} onChange={e => handleVariantChange(index, e)} className="border p-2 rounded" required />
                                 <input type="text" name="storage" placeholder="Storage" value={variant.storage} onChange={e => handleVariantChange(index, e)} className="border p-2 rounded" required />
-                                <input type="number" name="price" placeholder="Price" value={variant.price} onChange={e => handleVariantChange(index, e)} className="border p-2 rounded" required />
+                                <input type="number" step="0.01" name="price" placeholder="Price" value={variant.price} onChange={e => handleVariantChange(index, e)} className="border p-2 rounded" required />
                                 <input type="number" name="countInStock" placeholder="Stock" value={variant.countInStock} onChange={e => handleVariantChange(index, e)} className="border p-2 rounded" required />
                                 <button type="button" onClick={() => removeVariant(index)} className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">Remove</button>
                             </div>
