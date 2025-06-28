@@ -63,19 +63,48 @@ const ProductEditScreen = () => {
     const addImageField = () => setImages([...images, '']);
     const removeImageField = (index) => setImages(images.filter((_, i) => i !== index));
     
-    // --- 1. NEW HANDLER FUNCTION FOR CATEGORY CHANGES ---
     const handleCategoryChange = (newCategory) => {
         setCategory(newCategory);
-        // If the new category is NOT Electronics, reset the variants state to a clean default.
         if (newCategory !== 'Electronics') {
             setVariants([{ ram: '', storage: '', price: 0, countInStock: 0 }]);
         }
     };
-    // ----------------------------------------------------
 
-    const uploadFileHandler = async (e) => { 
-        // This function remains the same, you can paste your existing upload logic here
+    // --- THIS FUNCTION IS NOW FILLED IN TO FIX THE ERROR ---
+    const uploadFileHandler = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('image', file);
+        setUploading(true); // This makes setUploading "used"
+
+        try {
+            const response = await fetch(`${API_URL}/api/upload`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${userInfo.token}`,
+                },
+                body: formData,
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message || 'Image upload failed');
+            }
+
+            const newImages = [...images];
+            newImages[0] = data.image; 
+            setImages(newImages);
+
+        } catch (error) {
+            console.error(error);
+            setUpdateError(error.message);
+        } finally {
+            setUploading(false); // This also makes setUploading "used"
+        }
     };
+    // --------------------------------------------------------
 
     const submitHandler = async (e) => {
         e.preventDefault();
@@ -91,11 +120,7 @@ const ProductEditScreen = () => {
             : []; 
 
         const productData = {
-            name,
-            brand,
-            category,
-            description,
-            images,
+            name, brand, category, description, images,
             variants: finalVariants,
         };
 
@@ -141,10 +166,8 @@ const ProductEditScreen = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div><label className="block font-semibold">Name</label><input type="text" value={name} onChange={e => setName(e.target.value)} className="border p-2 w-full rounded" /></div>
                     <div><label className="block font-semibold">Brand</label><input type="text" value={brand} onChange={e => setBrand(e.target.value)} className="border p-2 w-full rounded" /></div>
-                    
                     <div>
                         <label className="block font-semibold">Category</label>
-                        {/* --- 2. UPDATED ONCHANGE HANDLER --- */}
                         <select 
                             value={category} 
                             onChange={e => handleCategoryChange(e.target.value)} 
@@ -157,7 +180,6 @@ const ProductEditScreen = () => {
                             <option value="Fashion & Beauty">Fashion & Beauty</option>
                             <option value="Home & Kitchen">Home & Kitchen</option>
                         </select>
-                        {/* ------------------------------------- */}
                     </div>
                 </div>
                 <div className="mb-6"><label className="block font-semibold">Description</label><textarea value={description} onChange={e => setDescription(e.target.value)} className="border p-2 w-full rounded" rows="4"></textarea></div>
