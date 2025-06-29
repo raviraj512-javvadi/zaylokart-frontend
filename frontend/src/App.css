@@ -1,26 +1,32 @@
-/* --- Main App Layout (Fixes Footer Gaps) --- */
-.app-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
+/* --- Main App Layout --- */
 .main-content {
-  flex-grow: 1;
+  flex-grow: 1; /* This is essential for the sticky footer to work */
+  width: 100%;
 }
 /* ------------------------------------------- */
 
+
 /* --- Header Styles --- */
-.header {
+/* This new .container class will keep your header content centered */
+.header .container {
+  max-width: 1400px;
+  margin: 0 auto; /* Centers the content */
+  padding: 0 2rem; /* Adds side padding */
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
+  height: 100%;
+}
+
+.header {
+  padding: 0; /* Remove padding from header, it's now on the container */
   border-bottom: 1px solid #e5e5e5;
   background-color: #fff;
   height: 70px;
+  width: 100%; /* Ensure header is full width */
 }
 /* ... other header styles can go here ... */
+
 
 /* --- Home Page: Hero Section --- */
 .hero-section {
@@ -59,6 +65,7 @@
   background-color: #333;
 }
 
+
 /* --- Home Page: Featured Products --- */
 .featured-products-section {
   padding: 4rem 2rem;
@@ -73,7 +80,9 @@
   margin-bottom: 3rem;
 }
 
+
 /* --- THIS IS THE FIX FOR THE PRODUCT GRID --- */
+/* This restores the 4-column grid layout as requested */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr); /* 4 columns on desktop */
@@ -81,11 +90,20 @@
 }
 /* ------------------------------------------ */
 
+
 /* --- Footer Styles --- */
 .footer {
   background-color: #1a1a1a;
   color: #fff;
   padding: 4rem 2rem 2rem 2rem;
+  width: 100%; /* Ensure footer is full width */
+}
+
+/* This new .container class will keep your footer content centered */
+.footer .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
 }
 /* ... other footer styles ... */
 

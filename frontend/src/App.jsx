@@ -26,56 +26,53 @@ import UserListScreen from './screens/UserListScreen';
 import UserEditScreen from './screens/UserEditScreen';
 import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
 import ResetPasswordScreen from './screens/ResetPasswordScreen';
-
-// --- This import is necessary for the new route ---
 import SubCategoryScreen from './screens/SubCategoryScreen';
 
 import './styles/App.css';
 
 function App() {
-  return (
-    <div className="app-container">
-      <Header />
-      <main className="main-content">
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<HomeScreen />} />
-          <Route path="/search/:keyword" element={<HomeScreen />} />
-          <Route path="/category/:category" element={<HomeScreen />} />
-          
-          {/* --- This is the new route for sub-categories --- */}
-          <Route path="/subcategory/:subCategoryName" element={<SubCategoryScreen />} />
-          {/* --------------------------------------------- */}
+  // We use a React Fragment <> instead of <div className="app-container">
+  // This lets the Header and Footer be full-width.
+  return (
+    <>
+      <Header />
+      <main className="main-content">
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<HomeScreen />} />
+          <Route path="/search/:keyword" element={<HomeScreen />} />
+          <Route path="/category/:category" element={<HomeScreen />} />
+          <Route path="/subcategory/:subCategoryName" element={<SubCategoryScreen />} />
+          
+          <Route path="/product/:id" element={<ProductScreen />} />
+          <Route path="/login" element={<LoginScreen />} />
+          <Route path="/register" element={<RegisterScreen />} />
+          <Route path="/cart" element={<CartScreen />} />
+          <Route path="/groceries" element={<GroceriesScreen />} />
+          <Route path="/electronics" element={<ElectronicsScreen />} />
+          <Route path="/forgotpassword" element={<ForgotPasswordScreen />} />
+          <Route path="/resetpassword/:resettoken" element={<ResetPasswordScreen />} />
 
-          <Route path="/product/:id" element={<ProductScreen />} />
-          <Route path="/login" element={<LoginScreen />} />
-          <Route path="/register" element={<RegisterScreen />} />
-          <Route path="/cart" element={<CartScreen />} />
-          <Route path="/groceries" element={<GroceriesScreen />} />
-          <Route path="/electronics" element={<ElectronicsScreen />} />
-          <Route path="/forgotpassword" element={<ForgotPasswordScreen />} />
-          <Route path="/resetpassword/:resettoken" element={<ResetPasswordScreen />} />
-
-          {/* Protected Routes for Regular Users */}
-          <Route path="/profile" element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>} />
-          <Route path="/wishlist" element={<ProtectedRoute><WishlistScreen /></ProtectedRoute>} />
-          <Route path="/shipping" element={<ProtectedRoute><ShippingScreen /></ProtectedRoute>} />
-          <Route path="/payment" element={<ProtectedRoute><PaymentScreen /></ProtectedRoute>} />
-          <Route path="/placeorder" element={<ProtectedRoute><PlaceOrderScreen /></ProtectedRoute>} />
-          <Route path="/order/success/:id" element={<ProtectedRoute><OrderSuccessScreen /></ProtectedRoute>} /> 
-          <Route path="/order/:id" element={<ProtectedRoute><OrderSuccessScreen /></ProtectedRoute>} /> 
-          
-          {/* Protected Routes for Admin */}
-          <Route path="/admin/productlist" element={<AdminProtectedRoute><ProductListScreen /></AdminProtectedRoute>} />
-          <Route path="/admin/product/:id/edit" element={<AdminProtectedRoute><ProductEditScreen /></AdminProtectedRoute>} />
-          <Route path="/admin/orderlist" element={<AdminProtectedRoute><OrderListScreen /></AdminProtectedRoute>} />
-          <Route path="/admin/userlist" element={<AdminProtectedRoute><UserListScreen /></AdminProtectedRoute>} />
-          <Route path="/admin/user/:id/edit" element={<AdminProtectedRoute><UserEditScreen /></AdminProtectedRoute>} />
-        </Routes>
-      </main>
-      <Footer />
-    </div>
-  );
+          {/* Protected Routes for Regular Users */}
+          <Route path="/profile" element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>} />
+          <Route path="/wishlist" element={<ProtectedRoute><WishlistScreen /></ProtectedRoute>} />
+          <Route path="/shipping" element={<ProtectedRoute><ShippingScreen /></ProtectedRoute>} />
+          <Route path="/payment" element={<ProtectedRoute><PaymentScreen /></ProtectedRoute>} />
+          <Route path="/placeorder" element={<ProtectedRoute><PlaceOrderScreen /></ProtectedRoute>} />
+          <Route path="/order/success/:id" element={<ProtectedRoute><OrderSuccessScreen /></ProtectedRoute>} /> 
+          <Route path="/order/:id" element={<ProtectedRoute><OrderSuccessScreen /></ProtectedRoute>} /> 
+          
+          {/* Protected Routes for Admin */}
+          <Route path="/admin/productlist" element={<AdminProtectedRoute><ProductListScreen /></AdminProtectedRoute>} />
+          <Route path="/admin/product/:id/edit" element={<AdminProtectedRoute><ProductEditScreen /></AdminProtectedRoute>} />
+          <Route path="/admin/orderlist" element={<AdminProtectedRoute><OrderListScreen /></AdminProtectedRoute>} />
+          <Route path="/admin/userlist" element={<AdminProtectedRoute><UserListScreen /></AdminProtectedRoute>} />
+          <Route path="/admin/user/:id/edit" element={<AdminProtectedRoute><UserEditScreen /></AdminProtectedRoute>} />
+        </Routes>
+      </main>
+      <Footer />
+    </>
+  );
 }
 
 export default App;

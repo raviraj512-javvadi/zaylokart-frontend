@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* --- CSS Reset --- */
+/* --- Global Reset & Base Styles --- */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -10,17 +10,29 @@
 html,
 body,
 #root {
-  height: 100%;
+  height: 100%; /* Makes sure the app can fill the full screen height */
 }
-/* ----------------- */
 
 body {
   font-family: 'Inter', sans-serif;
-  color: #1F2937;
+  color: #1F2937; /* Sets the base text color for the app */
+  /* This is your desired background gradient */
   background: linear-gradient(135deg, #FFDAB9, #ffffff 40%, #ffffff 60%, #c1ffc1);
-  background-attachment: fixed;
+  background-attachment: fixed; /* Keeps the gradient in place on scroll */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* This is the critical rule for the sticky footer.
+   It turns the main app container into a flex column,
+   allowing the main content to grow and push the footer down.
+*/
+#root {
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- General element styling --- */
 a {
   text-decoration: none;
   color: inherit;
