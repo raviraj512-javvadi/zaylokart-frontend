@@ -4,6 +4,9 @@ import { useCart } from '../context/CartContext';
 import API_URL from '../apiConfig';
 import Rating from '../components/Rating';
 
+// Import the new CSS file
+import './ProductScreen.css';
+
 const ProductScreen = () => {
     const { id: productId } = useParams();
     const navigate = useNavigate();
@@ -17,7 +20,6 @@ const ProductScreen = () => {
 
     useEffect(() => {
         const fetchProduct = async () => {
-            // Set loading to true at the start of the fetch
             setLoading(true);
             try {
                 const response = await fetch(`${API_URL}/api/products/${productId}`);
@@ -33,7 +35,6 @@ const ProductScreen = () => {
             } catch (err) {
                 setError(err.message);
             } finally {
-                // Set loading to false once the fetch is complete (either success or failure)
                 setLoading(false);
             }
         };
@@ -48,17 +49,12 @@ const ProductScreen = () => {
         navigate('/cart');
     };
 
-    // --- THIS IS THE FIX ---
-    // This block uses the 'loading' variable, which resolves the error.
-    // It also provides a good user experience by showing a loading indicator.
     if (loading) {
-        return <p className="text-center p-10 text-xl">Loading...</p>;
+        return <p style={{ textAlign: 'center', padding: '2rem' }}>Loading...</p>;
     }
-    // ----------------------
 
-    // This block now correctly comes after the loading check
     if (error || !product) {
-        return <p className="text-center p-10 text-xl text-red-500">{error || 'Product not found.'}</p>;
+        return <p style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>{error || 'Product not found.'}</p>;
     }
 
     const displayPrice = product.price;
@@ -66,42 +62,47 @@ const ProductScreen = () => {
     const isInStock = displayStock > 0;
 
     return (
-        <div className="container mx-auto p-4 md:p-8">
-            <Link to="/" className='btn btn-light my-3 inline-block mb-4'>Go Back</Link>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="product-screen-container">
+            <Link to="/" className='btn-go-back'>Go Back</Link>
+            
+            <div className="product-screen-grid">
                 {/* Left Side: Image Gallery */}
-                <div>
-                    <img src={mainImage || (product.images && product.images[0])} alt={product.name} className="w-full h-auto object-cover rounded-lg shadow-lg mb-4"/>
-                    <div className="flex space-x-2 overflow-x-auto p-2">
+                <div className="product-image-gallery">
+                    <img src={mainImage} alt={product.name} className="main-image"/>
+                    <div className="thumbnail-container">
                         {product.images.map((image, index) => (
-                            <img key={index} src={image} alt={`thumbnail ${index}`} 
-                                className={`w-20 h-20 rounded cursor-pointer border-2 ${mainImage === image ? 'border-blue-500' : 'border-gray-300'}`}
-                                onClick={() => setMainImage(image)} />
+                            <img 
+                                key={index} 
+                                src={image} 
+                                alt={`thumbnail ${index}`} 
+                                className={`thumbnail ${mainImage === image ? 'active' : ''}`}
+                                onClick={() => setMainImage(image)} 
+                            />
                         ))}
                     </div>
                 </div>
 
                 {/* Right Side: Product Details */}
-                <div>
-                    <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-                    <p className="text-gray-500 mb-4">Brand: {product.brand}</p>
-                    <div className="my-4"><Rating value={product.rating} text={`${product.numReviews} reviews`} /></div>
-                    <hr className="my-4" />
+                <div className="product-details">
+                    <h1 className="product-title">{product.name}</h1>
+                    <p className="product-brand">Brand: {product.brand}</p>
+                    <div style={{ margin: '1rem 0' }}><Rating value={product.rating} text={`${product.numReviews} reviews`} /></div>
+                    <hr />
                     
-                    <div className="text-3xl font-bold text-gray-900 mb-4">
+                    <div className="product-price">
                         ₹{displayPrice.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </div>
                     
-                    <p className="font-semibold" style={{ color: isInStock ? 'green' : 'red' }}>
+                    <p className="product-stock" style={{ color: isInStock ? 'green' : 'red' }}>
                         {isInStock ? 'In Stock' : 'Out of Stock'}
                     </p>
 
-                    <hr className="my-4" />
+                    <hr style={{ margin: '1rem 0' }} />
 
                     {isInStock && (
-                        <div className="my-4">
-                            <label className="font-bold text-gray-700">Qty:</label>
-                            <select value={qty} onChange={(e) => setQty(Number(e.target.value))} className="ml-2 p-2 border rounded">
+                        <div>
+                            <label htmlFor="qty-select" style={{ fontWeight: '600' }}>Qty:</label>
+                            <select id="qty-select" value={qty} onChange={(e) => setQty(Number(e.target.value))} className="qty-selector">
                                 {[...Array(displayStock).keys()].slice(0, 10).map(x => (
                                     <option key={x + 1} value={x + 1}>{x + 1}</option>
                                 ))}
@@ -109,16 +110,15 @@ const ProductScreen = () => {
                         </div>
                     )}
                     
-                    <div className="mt-6 space-y-4">
-                        <button onClick={addToCartHandler} disabled={!isInStock} className="w-full bg-yellow-500 text-white font-bold py-3 px-6 rounded hover:bg-yellow-600 disabled:bg-gray-400">
-                            Add to Cart
-                        </button>
-                    </div>
+                    <button onClick={addToCartHandler} disabled={!isInStock} className="add-to-cart-btn">
+                        Add to Cart
+                    </button>
                 </div>
             </div>
-            <div className="mt-12">
-                <h2 className="text-2xl font-bold mb-4">Description</h2>
-                <p className="text-gray-700 leading-relaxed">{product.description}</p>
+
+            <div className="product-description-section">
+                <h2>Description</h2>
+                <p>{product.description}</p>
             </div>
         </div>
     );
