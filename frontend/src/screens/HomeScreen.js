@@ -3,6 +3,13 @@ import { Link } from 'react-router-dom';
 import API_URL from '../apiConfig';
 import ProductCard from '../components/ProductCard';
 
+// --- THIS IS THE FIX ---
+// We are now importing the stylesheet that contains the styles for the Product Cards.
+// This was the missing piece that prevented the grid from working.
+import '../ProductGrid.css'; 
+// Note: If your ProductGrid.css file is in a 'styles' folder,
+// the path should be '../styles/ProductGrid.css'
+
 const HomeScreen = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,7 +31,6 @@ const HomeScreen = () => {
 
   return (
     <>
-      {/* --- This section now uses the correct CSS classes --- */}
       <div className="hero-section">
         <h1 className="hero-title">Style Redefined</h1>
         <p className="hero-subtitle">
@@ -35,7 +41,6 @@ const HomeScreen = () => {
         </Link>
       </div>
 
-      {/* --- This section now uses the correct CSS classes --- */}
       <div className="featured-products-section">
         <h2 className="featured-title">Featured Products</h2>
         {loading ? (
