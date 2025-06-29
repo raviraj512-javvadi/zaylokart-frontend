@@ -34,12 +34,59 @@ const ProductListScreen = () => {
         }
     }, [userInfo, navigate, fetchProducts]);
 
+
+    // --- IMPLEMENTATION ADDED FOR createProductHandler ---
     const createProductHandler = async () => {
-        // ... this function is correct, no changes needed
+        if (window.confirm('Are you sure you want to create a new sample product?')) {
+            console.log('User confirmed. Attempting to create product...');
+            try {
+                const response = await fetch(`${API_URL}/api/products`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${userInfo.token}`,
+                    },
+                    body: JSON.stringify({}), // Backend creates a sample
+                });
+
+                const createdProduct = await response.json();
+                console.log('Received response from server:', createdProduct);
+
+                if (!response.ok) {
+                    throw new Error(createdProduct.message || 'Could not create product');
+                }
+                
+                console.log('Product created successfully. Navigating to edit page...');
+                navigate(`/admin/product/${createdProduct._id}/edit`);
+
+            } catch (err) {
+                console.error('An error occurred during product creation:', err);
+                alert(`Failed to create product. Error: ${err.message}`);
+            }
+        } else {
+            console.log('User canceled product creation.');
+        }
     };
 
+    // --- IMPLEMENTATION ADDED FOR deleteHandler ---
     const deleteHandler = async (id) => {
-        // ... this function is correct, no changes needed
+        if (window.confirm('Are you sure you want to delete this product?')) {
+            try {
+                const response = await fetch(`${API_URL}/api/products/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        Authorization: `Bearer ${userInfo.token}`,
+                    },
+                });
+                if (!response.ok) {
+                    throw new Error('Could not delete product.');
+                }
+                // Refetch products to update the list after deletion
+                fetchProducts();
+            } catch (error) {
+                alert(`Error deleting product: ${error.message}`);
+            }
+        }
     };
 
     if (loading) return <p className="text-center p-10">Loading products...</p>;
@@ -71,17 +118,8 @@ const ProductListScreen = () => {
                             <tr key={product._id}>
                                 <td>{product._id}</td>
                                 <td>{product.name}</td>
-                                
-                                {/* --- THIS IS THE FIX --- */}
-                                {/* We now use the top-level product.price */}
-                                <td>
-                                    ₹{product.price.toLocaleString('en-IN')}
-                                </td>
-                                {/* --------------------- */}
-
-                                {/* Optional Suggestion: Display the more specific subCategory */}
+                                <td>₹{product.price.toLocaleString('en-IN')}</td>
                                 <td>{product.subCategory}</td>
-                                
                                 <td>{product.brand}</td>
                                 <td>
                                     <div className="action-buttons">
