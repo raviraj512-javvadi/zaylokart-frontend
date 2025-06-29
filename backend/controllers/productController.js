@@ -5,16 +5,22 @@ import Product from '../models/productModel.js';
 // @route   GET /api/products
 // @access  Public
 const getProducts = asyncHandler(async (req, res) => {
-    // ... This function is correct and requires no changes
     const keywordFilter = req.query.keyword
         ? { name: { $regex: req.query.keyword, $options: 'i' } }
         : {};
 
     const categoryFilter = req.query.category
-        ? { category: { $regex: `^${req.query.category}$`, $options: 'i' } }
+        ? { category: req.query.category }
         : {};
 
-    const products = await Product.find({ ...keywordFilter, ...categoryFilter });
+    // --- ADDED: Filter by subCategory for your public shop pages ---
+    const subCategoryFilter = req.query.subCategory
+        ? { subCategory: req.query.subCategory }
+        : {};
+    // ----------------------------------------------------------------
+
+    // --- UPDATED: Added the new subCategoryFilter to the search ---
+    const products = await Product.find({ ...keywordFilter, ...categoryFilter, ...subCategoryFilter });
     res.json(products);
 });
 
@@ -22,7 +28,7 @@ const getProducts = asyncHandler(async (req, res) => {
 // @route   GET /api/products/:id
 // @access  Public
 const getProductById = asyncHandler(async (req, res) => {
-    // ... This function is correct and requires no changes
+    // ... No changes needed here ...
     const product = await Product.findById(req.params.id);
     if (product) {
         res.json(product);
@@ -36,7 +42,6 @@ const getProductById = asyncHandler(async (req, res) => {
 // @route   POST /api/products
 // @access  Private/Admin
 const createProduct = asyncHandler(async (req, res) => {
-    // UPDATED to include default price and countInStock
     const product = new Product({
         name: 'Sample Name',
         price: 0,
@@ -45,6 +50,9 @@ const createProduct = asyncHandler(async (req, res) => {
         images: ['/images/sample.jpg'],
         brand: 'Sample Brand',
         category: 'Sample Category',
+        // --- ADDED: Default subCategory for new products ---
+        subCategory: 'Sample SubCategory',
+        // ----------------------------------------------------
         description: 'Sample description',
         variants: []
     });
@@ -57,10 +65,10 @@ const createProduct = asyncHandler(async (req, res) => {
 // @route   PUT /api/products/:id
 // @access  Private/Admin
 const updateProduct = asyncHandler(async (req, res) => {
-    // --- UPDATED: Add price and countInStock to the destructuring ---
-    const { name, price, countInStock, description, brand, category, images, variants } = req.body;
+    // --- UPDATED: Add subCategory to the destructuring ---
+    const { name, price, countInStock, description, brand, category, subCategory, images, variants } = req.body;
 
-    // This variant validation logic remains unchanged and is correct
+    // This variant validation logic is correct
     if (category === 'Electronics') {
         if (!variants || variants.length === 0) {
             res.status(400);
@@ -81,13 +89,15 @@ const updateProduct = asyncHandler(async (req, res) => {
         product.description = description;
         product.brand = brand;
         product.category = category;
+        // --- ADDED: Save the new subCategory field ---
+        product.subCategory = subCategory;
+        // -------------------------------------------
         product.images = images;
-        product.variants = variants;
-        
-        // --- ADDED: Save the new base price and stock fields ---
+        // --- UPDATED: Clear variants if not an electronic product for data safety ---
+        product.variants = category === 'Electronics' ? variants : [];
+        // --------------------------------------------------------------------------
         product.price = price;
         product.countInStock = countInStock;
-        // ----------------------------------------------------
 
         const updatedProduct = await product.save();
         res.json(updatedProduct);
@@ -101,7 +111,7 @@ const updateProduct = asyncHandler(async (req, res) => {
 // @route   DELETE /api/products/:id
 // @access  Private/Admin
 const deleteProduct = asyncHandler(async (req, res) => {
-    // ... This function is correct and requires no changes
+    // ... No changes needed here ...
     const product = await Product.findById(req.params.id);
     if (product) {
         await product.deleteOne({ _id: product._id });
@@ -111,7 +121,6 @@ const deleteProduct = asyncHandler(async (req, res) => {
         throw new Error('Product not found');
     }
 });
-
 
 export {
     getProducts,

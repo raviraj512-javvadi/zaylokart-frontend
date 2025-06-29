@@ -8,21 +8,29 @@ const ProductEditScreen = () => {
     const navigate = useNavigate();
     const { userInfo } = useAuth();
 
-    // --- 1. ADD STATE FOR BASE PRICE AND STOCK ---
+    // State for all product fields
     const [name, setName] = useState('');
     const [price, setPrice] = useState(0);
     const [countInStock, setCountInStock] = useState(0);
     const [brand, setBrand] = useState('');
     const [category, setCategory] = useState('');
+    const [subCategory, setSubCategory] = useState('');
     const [description, setDescription] = useState('');
     const [images, setImages] = useState(['']); 
     const [variants, setVariants] = useState([{ ram: '', storage: '', price: 0, countInStock: 0 }]);
     
+    // States for loading and messaging
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [updateError, setUpdateError] = useState('');
     const [updateSuccess, setUpdateSuccess] = useState(false);
     const [uploading, setUploading] = useState(false);
+
+    const subCategoryOptions = [
+        'Fresh Fruits', 'Fresh Vegetables', 'Dairy & Eggs', 'Meat & Seafood',
+        'Snacks & Munchies', 'Beverages', 'Masalas & Spices', 'Atta, Rice & Dal',
+        'Mobiles', 'Laptops', 'Audio', 'Cameras', 'Men', 'Women', 'Kids', 'Beauty & Grooming'
+    ];
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -33,48 +41,70 @@ const ProductEditScreen = () => {
                 if (!response.ok) throw new Error('Failed to fetch product details');
                 
                 setName(data.name);
-                // --- 2. POPULATE BASE PRICE AND STOCK FROM FETCHED DATA ---
                 setPrice(data.price);
                 setCountInStock(data.countInStock);
                 setBrand(data.brand);
                 setCategory(data.category);
+                setSubCategory(data.subCategory);
                 setDescription(data.description);
                 setImages(data.images && data.images.length > 0 ? data.images : ['']);
                 setVariants(data.variants && data.variants.length > 0 ? data.variants : [{ ram: '', storage: '', price: 0, countInStock: 0 }]);
-                
             } catch (err) {
                 setError(err.message);
             } finally {
                 setLoading(false);
             }
         };
-
-        if (productId) {
-            fetchProduct();
-        }
+        if (productId) { fetchProduct(); }
     }, [productId]);
 
-    // All helper functions remain the same
-    const handleVariantChange = (index, event) => {
-        const newVariants = [...variants];
-        newVariants[index][event.target.name] = event.target.value;
-        setVariants(newVariants);
-    };
-    const addVariant = () => setVariants([...variants, { ram: '', storage: '', price: 0, countInStock: 0 }]);
-    const removeVariant = (index) => setVariants(variants.filter((_, i) => i !== index));
-    const handleImageChange = (index, event) => {
-        const newImages = [...images];
-        newImages[index] = event.target.value;
-        setImages(newImages);
-    };
-    const addImageField = () => setImages([...images, '']);
-    const removeImageField = (index) => setImages(images.filter((_, i) => i !== index));
+    // --- ALL HELPER FUNCTIONS NOW FULLY IMPLEMENTED ---
+
     const handleCategoryChange = (newCategory) => {
         setCategory(newCategory);
         if (newCategory !== 'Electronics') {
             setVariants([{ ram: '', storage: '', price: 0, countInStock: 0 }]);
         }
     };
+
+    const handleVariantChange = (index, event) => {
+        const updatedVariants = variants.map((variant, i) => {
+            if (index === i) {
+                return { ...variant, [event.target.name]: event.target.value };
+            }
+            return variant;
+        });
+        setVariants(updatedVariants);
+    };
+
+    const addVariant = () => {
+        setVariants([...variants, { ram: '', storage: '', price: 0, countInStock: 0 }]);
+    };
+
+    const removeVariant = (index) => {
+        const filteredVariants = variants.filter((_, i) => i !== index);
+        setVariants(filteredVariants);
+    };
+
+    const handleImageChange = (index, event) => {
+        const newImages = images.map((image, i) => {
+            if (index === i) {
+                return event.target.value;
+            }
+            return image;
+        });
+        setImages(newImages);
+    };
+
+    const addImageField = () => {
+        setImages([...images, '']);
+    };
+
+    const removeImageField = (index) => {
+        const filteredImages = images.filter((_, i) => i !== index);
+        setImages(filteredImages);
+    };
+
     const uploadFileHandler = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -105,33 +135,22 @@ const ProductEditScreen = () => {
         setUpdateError('');
         setUpdateSuccess(false);
 
-        const finalVariants = category === 'Electronics' 
-            ? variants.map(v => ({
-                ...v,
-                price: Number(v.price) || 0,
-                countInStock: Number(v.countInStock) || 0
-            }))
-            : []; 
-
-        // --- 3. ADD BASE PRICE AND STOCK TO SUBMISSION DATA ---
         const productData = {
             name,
-            price: Number(price) || 0,
-            countInStock: Number(countInStock) || 0,
+            price: Number(price),
+            countInStock: Number(countInStock),
             brand,
             category,
+            subCategory,
             description,
             images,
-            variants: finalVariants,
+            variants: category === 'Electronics' ? variants : [],
         };
 
         try {
             const res = await fetch(`${API_URL}/api/products/${productId}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${userInfo.token}`,
-                },
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${userInfo.token}` },
                 body: JSON.stringify(productData),
             });
             const data = await res.json();
@@ -156,30 +175,35 @@ const ProductEditScreen = () => {
                 <h1 className="text-2xl font-bold mb-6">Edit Product</h1>
                 
                 {updateError && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{updateError}</div>}
-                {updateSuccess && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">Product updated successfully! Redirecting...</div>}
+                {updateSuccess && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">Product updated successfully!</div>}
                 
-                {/* --- 4. ADDED PRICE AND STOCK INPUT FIELDS TO THE FORM --- */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div><label className="block font-semibold">Name</label><input type="text" value={name} onChange={e => setName(e.target.value)} className="border p-2 w-full rounded" required /></div>
                     <div><label className="block font-semibold">Brand</label><input type="text" value={brand} onChange={e => setBrand(e.target.value)} className="border p-2 w-full rounded" required /></div>
                     <div><label className="block font-semibold">Base Price</label><input type="number" step="0.01" value={price} onChange={e => setPrice(e.target.value)} className="border p-2 w-full rounded" required /></div>
                     <div><label className="block font-semibold">Base Stock</label><input type="number" value={countInStock} onChange={e => setCountInStock(e.target.value)} className="border p-2 w-full rounded" required /></div>
+                    
                     <div>
-                        <label className="block font-semibold">Category</label>
-                        <select 
-                            value={category} 
-                            onChange={e => handleCategoryChange(e.target.value)} 
-                            className="border p-2 w-full rounded bg-white"
-                            required
-                        >
-                            <option value="">-- Select a Category --</option>
+                        <label className="block font-semibold">Category (Controls Form)</label>
+                        <select value={category} onChange={e => handleCategoryChange(e.target.value)} className="border p-2 w-full rounded bg-white" required>
+                            <option value="">-- Select Type --</option>
                             <option value="Electronics">Electronics</option>
                             <option value="Groceries">Groceries</option>
                             <option value="Fashion & Beauty">Fashion & Beauty</option>
-                            <option value="Home & Kitchen">Home & Kitchen</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block font-semibold">Sub-Category (For Shop Filter)</label>
+                        <select value={subCategory} onChange={e => setSubCategory(e.target.value)} className="border p-2 w-full rounded bg-white" required>
+                            <option value="">-- Select Sub-Category --</option>
+                            {subCategoryOptions.map(option => (
+                                <option key={option} value={option}>{option}</option>
+                            ))}
                         </select>
                     </div>
                 </div>
+                
                 <div className="mb-6"><label className="block font-semibold">Description</label><textarea value={description} onChange={e => setDescription(e.target.value)} className="border p-2 w-full rounded" rows="4" required></textarea></div>
                 
                 <div className="mb-6 p-4 border rounded-lg bg-gray-50">
