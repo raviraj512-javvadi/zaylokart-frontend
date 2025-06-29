@@ -1,25 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { useWishlist } from '../context/WishlistContext';
-import { useAuth } from '../context/AuthContext';
-import { Heart } from 'lucide-react';
 import API_URL from '../apiConfig';
-import Rating from '../components/Rating'; // We will use the Rating component here too
+import Rating from '../components/Rating';
 
 const ProductScreen = () => {
     const { id: productId } = useParams();
     const navigate = useNavigate();
 
     const { addToCart } = useCart();
-    const { wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
-    const { userInfo } = useAuth();
 
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     
-    const [selectedVariant, setSelectedVariant] = useState(null);
+    // We can remove selectedVariant state for now as it's only for electronics
     const [mainImage, setMainImage] = useState('');
     const [qty, setQty] = useState(1);
 
@@ -34,11 +29,6 @@ const ProductScreen = () => {
                 }
                 setProduct(data);
                 
-                // Set defaults based on product type
-                if (data.variants && data.variants.length > 0) {
-                    // It's a variable product (e.g., Electronics)
-                    setSelectedVariant(data.variants[0]);
-                }
                 if (data.images && data.images.length > 0) {
                     setMainImage(data.images[0]);
                 }
@@ -51,52 +41,27 @@ const ProductScreen = () => {
         fetchProduct();
     }, [productId]);
 
-    const isWishlisted = product ? wishlistItems.some(item => item._id === product._id) : false;
-
-    // --- UPDATED ADD TO CART HANDLER ---
     const addToCartHandler = () => {
-        const isVariableProduct = product.variants && product.variants.length > 0;
-
-        // For variable products, a variant must be selected
-        if (isVariableProduct && !selectedVariant) {
-            alert('Please select a product variant');
-            return;
-        }
-        
-        // Use selectedVariant if it exists, otherwise use main product details
-        const cartItemDetails = selectedVariant || {
+        // Since we only have one price/stock for simple products, this logic is simpler.
+        // We will need to enhance this later if we re-add variants.
+        addToCart(product, qty, {
             price: product.price,
             countInStock: product.countInStock
-        };
-        
-        addToCart(product, qty, cartItemDetails);
+        });
         navigate('/cart');
     };
 
-    // Other handlers (wishlist, etc.) can remain the same
-    const wishlistHandler = () => { /* ... */ };
-
-
-    // --- RENDER LOGIC ---
-
     if (loading) return <p className="text-center p-10">Loading...</p>;
-    // IMPORTANT: Check for error or a non-existent product first
     if (error || !product) return <p className="text-center p-10 text-red-500">{error || 'Product not found.'}</p>;
 
-    // --- NEW LOGIC TO DETERMINE PRICE AND STOCK ---
-    const isVariableProduct = product.variants && product.variants.length > 0;
-    
-    // If a variant is selected, use its price/stock. Otherwise, use the product's base price/stock.
-    const displayPrice = selectedVariant ? selectedVariant.price : product.price;
-    const displayStock = selectedVariant ? selectedVariant.countInStock : product.countInStock;
+    // Use the product's base price and stock directly
+    const displayPrice = product.price;
+    const displayStock = product.countInStock;
     const isInStock = displayStock > 0;
-
-    // Get unique options for variant dropdowns if they exist
-    const ramOptions = isVariableProduct ? [...new Set(product.variants.map(v => v.ram))] : [];
-    const storageOptions = isVariableProduct ? [...new Set(product.variants.map(v => v.storage))] : [];
 
     return (
         <div className="container mx-auto p-4 md:p-8">
+            <Link to="/" className='btn btn-light my-3'>Go Back</Link>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Left Side: Image Gallery */}
                 <div>
@@ -126,14 +91,6 @@ const ProductScreen = () => {
                     </p>
 
                     <hr className="my-4" />
-
-                    {/* --- VARIANT SECTION: ONLY SHOWS FOR VARIABLE PRODUCTS --- */}
-                    {isVariableProduct && (
-                        <div className="bg-gray-100 p-4 rounded-lg mb-4">
-                            {/* RAM/Storage selectors here, mapping over ramOptions and storageOptions */}
-                            <p>RAM/Storage selectors would go here.</p>
-                        </div>
-                    )}
 
                     {/* Quantity Selector */}
                     {isInStock && (
