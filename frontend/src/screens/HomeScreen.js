@@ -3,9 +3,7 @@ import { Link } from 'react-router-dom';
 import API_URL from '../apiConfig';
 import ProductCard from '../components/ProductCard';
 
-// --- THIS IS THE FIX ---
-// We are now importing the stylesheet that contains the styles for the Product Cards.
-// This was the missing piece that prevented the grid from working.
+// We are importing the stylesheet that contains all the styles for this section.
 import '../ProductGrid.css'; 
 // Note: If your ProductGrid.css file is in a 'styles' folder,
 // the path should be '../styles/ProductGrid.css'
@@ -47,8 +45,9 @@ const HomeScreen = () => {
           <p>Loading products...</p>
         ) : (
           <div className="product-grid">
-            {/* Displaying only the first 4 products as featured */}
-            {products.slice(0, 4).map(product => (
+            {/* --- THIS IS THE FIX --- */}
+            {/* The .slice(0, 8) has been removed to show ALL products */}
+            {products.map(product => (
               <ProductCard key={product._id} product={product} />
             ))}
           </div>
