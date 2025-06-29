@@ -2,93 +2,138 @@
 
 /* --- CSS Reset & Full Height Setup --- */
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
 }
 /* ------------------------------------- */
 
+
 /* --- Your Custom Theme & Base Styles --- */
 :root {
-  --saffron-light: #FFDAB9;
-  --green-light: #c1ffc1;
-  --text-color: #1F2937;
+  --saffron-light: #FFDAB9;
+  --green-light: #c1ffc1;
+  --text-color: #1F2937;
 }
 
 body {
-  font-family: 'Inter', sans-serif;
-  color: var(--text-color);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, var(--saffron-light), #ffffff 40%, #ffffff 60%, var(--green-light));
-  min-height: 100vh;
-  background-attachment: fixed;
-  padding: 0 1rem;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-color);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg,
+      var(--saffron-light),
+      #ffffff 40%,
+      #ffffff 60%,
+      var(--green-light));
+  min-height: 100vh;
+  background-attachment: fixed;
+  padding: 0 1rem;
   font-size: 1rem;
-  line-height: 1.6;
+  line-height: 1.6;
 }
 
 a {
-  text-decoration: none;
-  color: inherit;
+  text-decoration: none;
+  color: inherit;
 }
 
 img {
-  max-width: 100%;
-  height: auto;
-  display: block;
+  max-width: 100%;
+  height: auto;
+  display: block;
 }
 
 /* --- Your Typography & Layout Styles --- */
 h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
+  font-size: 2.5rem;
+  font-weight: 700;
 }
+
 h2 {
-  font-size: 2rem;
-  font-weight: 600;
+  font-size: 2rem;
+  font-weight: 600;
 }
+
 h3 {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
+
 h4 {
-  font-size: 1.25rem;
-  font-weight: 500;
+  font-size: 1.25rem;
+  font-weight: 500;
 }
+
 p {
-  margin-bottom: 1rem;
+  margin-bottom: 1rem;
 }
+
 small {
-  font-size: 0.875rem;
+  font-size: 0.875rem;
 }
+
 .container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
 }
 
 /* --- Your Responsive Adjustments --- */
 @media (max-width: 1024px) {
-  h1 { font-size: 2.2rem; }
-  h2 { font-size: 1.75rem; }
-  h3 { font-size: 1.25rem; }
+  h1 {
+    font-size: 2.2rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
 }
 
 @media (max-width: 768px) {
-  body { font-size: 0.95rem; padding: 0 0.75rem; }
-  h1 { font-size: 2rem; }
-  h2 { font-size: 1.5rem; }
-  .container { padding: 0 0.75rem; }
+  body {
+    font-size: 0.95rem;
+    padding: 0 0.75rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  .container {
+    padding: 0 0.75rem;
+  }
 }
 
 @media (max-width: 480px) {
-  body { font-size: 0.9rem; padding: 0 0.5rem; }
-  h1 { font-size: 1.75rem; }
-  h2 { font-size: 1.4rem; }
-  .container { padding: 0 0.5rem; }
+  body {
+    font-size: 0.9rem;
+    padding: 0 0.5rem;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.4rem;
+  }
+
+  .container {
+    padding: 0 0.5rem;
+  }
 }
