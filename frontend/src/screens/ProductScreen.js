@@ -66,6 +66,7 @@ const ProductScreen = () => {
         navigate('/shipping'); // The only difference: navigates directly to shipping
     };
 
+    if (loading) return <p className="text-center p-10">Loading...</p>;
     if (error || !product) return <p className="text-center p-10 text-red-500">{error || 'Product not found.'}</p>;
 
     const isInStock = product.countInStock > 0;
