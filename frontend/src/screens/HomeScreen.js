@@ -42,6 +42,7 @@ const HomeScreen = () => {
           <p>Loading products...</p>
         ) : (
           <div className="product-grid">
+            {/* Displaying only the first 4 products as featured */}
             {products.slice(0, 4).map(product => (
               <ProductCard key={product._id} product={product} />
             ))}
