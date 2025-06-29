@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* --- CSS Reset & Full Height Setup --- */
+/* --- CSS Reset --- */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -12,26 +12,12 @@ body,
 #root {
   height: 100%;
 }
-/* ------------------------------------- */
-
-/* --- Custom Theme & Base Styles --- */
-:root {
-  --saffron-light: #FFDAB9;
-  --green-light: #c1ffc1;
-  --text-color: #1F2937;
-}
+/* ----------------- */
 
 body {
   font-family: 'Inter', sans-serif;
-  color: var(--text-color);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg,
-      var(--saffron-light),
-      #ffffff 40%,
-      #ffffff 60%,
-      var(--green-light));
-  min-height: 100vh;
+  color: #1F2937;
+  background: linear-gradient(135deg, #FFDAB9, #ffffff 40%, #ffffff 60%, #c1ffc1);
   background-attachment: fixed;
 }
 
@@ -42,17 +28,5 @@ a {
 
 img {
   max-width: 100%;
-  height: auto;
   display: block;
-}
-
-/* --- NEW: Button Reset --- */
-/* This removes default browser styles from all buttons */
-button {
-  cursor: pointer;
-  background: none;
-  border: none;
-  padding: 0;
-  font: inherit;
-  color: inherit; /* Ensures button text has the same color as other text */
 }
