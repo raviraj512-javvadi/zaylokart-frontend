@@ -14,8 +14,7 @@ body,
 }
 /* ------------------------------------- */
 
-
-/* --- Your Custom Theme & Base Styles --- */
+/* --- Custom Theme & Base Styles --- */
 :root {
   --saffron-light: #FFDAB9;
   --green-light: #c1ffc1;
@@ -34,9 +33,6 @@ body {
       var(--green-light));
   min-height: 100vh;
   background-attachment: fixed;
-  padding: 0 1rem;
-  font-size: 1rem;
-  line-height: 1.6;
 }
 
 a {
@@ -48,92 +44,4 @@ img {
   max-width: 100%;
   height: auto;
   display: block;
-}
-
-/* --- Your Typography & Layout Styles --- */
-h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-}
-
-h2 {
-  font-size: 2rem;
-  font-weight: 600;
-}
-
-h3 {
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-h4 {
-  font-size: 1.25rem;
-  font-weight: 500;
-}
-
-p {
-  margin-bottom: 1rem;
-}
-
-small {
-  font-size: 0.875rem;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-/* --- Your Responsive Adjustments --- */
-@media (max-width: 1024px) {
-  h1 {
-    font-size: 2.2rem;
-  }
-
-  h2 {
-    font-size: 1.75rem;
-  }
-
-  h3 {
-    font-size: 1.25rem;
-  }
-}
-
-@media (max-width: 768px) {
-  body {
-    font-size: 0.95rem;
-    padding: 0 0.75rem;
-  }
-
-  h1 {
-    font-size: 2rem;
-  }
-
-  h2 {
-    font-size: 1.5rem;
-  }
-
-  .container {
-    padding: 0 0.75rem;
-  }
-}
-
-@media (max-width: 480px) {
-  body {
-    font-size: 0.9rem;
-    padding: 0 0.5rem;
-  }
-
-  h1 {
-    font-size: 1.75rem;
-  }
-
-  h2 {
-    font-size: 1.4rem;
-  }
-
-  .container {
-    padding: 0 0.5rem;
-  }
 }
