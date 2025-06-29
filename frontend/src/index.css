@@ -8,13 +8,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 /* --- Independence Day Theme (Temporary) --- */
-/* To change the theme, you only need to edit the colors here! */
 :root {
-  --saffron-light: #FFDAB9; /* A pleasant, light saffron/peach color */
-  --green-light: #c1ffc1;   /* A nice, light but clear green */
-  --text-color: #1F2937;    /* A strong, dark grey for all text for readability */
+  --saffron-light: #FFDAB9; /* Light saffron/peach */
+  --green-light: #c1ffc1;   /* Light green */
+  --text-color: #1F2937;    /* Dark gray for text */
 }
-
 
 * {
   box-sizing: border-box;
@@ -24,25 +22,117 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  color: var(--text-color); /* Use the text color from our theme */
+  color: var(--text-color);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* --- This is the slanted gradient background --- */
+  /* Slanted gradient background */
   background: linear-gradient(
-    135deg, /* This creates the slant from top-left to bottom-right */
+    135deg,
     var(--saffron-light),
     #ffffff 40%,
     #ffffff 60%,
     var(--green-light)
   );
-  
-  /* This ensures the gradient covers the whole screen and stays fixed when you scroll */
   min-height: 100vh;
   background-attachment: fixed;
+  padding: 0 1rem; /* Base padding for mobile spacing */
 }
 
 a {
   text-decoration: none;
-  color: inherit; /* This makes links use the body's text color */
+  color: inherit;
+}
+
+/* --- Responsive Typography & Layout Tweaks --- */
+
+/* Body text size defaults */
+body {
+  font-size: 1rem; /* 16px base */
+  line-height: 1.6;
+}
+
+/* Headings */
+h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+h2 {
+  font-size: 2rem;
+  font-weight: 600;
+}
+h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+h4 {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+/* Paragraphs and small text */
+p {
+  margin-bottom: 1rem;
+}
+small {
+  font-size: 0.875rem;
+}
+
+/* Images */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Utility - Centered container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 1024px) {
+  h1 {
+    font-size: 2.2rem;
+  }
+  h2 {
+    font-size: 1.75rem;
+  }
+  h3 {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    font-size: 0.95rem;
+    padding: 0 0.75rem;
+  }
+  h1 {
+    font-size: 2rem;
+  }
+  h2 {
+    font-size: 1.5rem;
+  }
+  .container {
+    padding: 0 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 0.9rem;
+    padding: 0 0.5rem;
+  }
+  h1 {
+    font-size: 1.75rem;
+  }
+  h2 {
+    font-size: 1.4rem;
+  }
+  .container {
+    padding: 0 0.5rem;
+  }
 }

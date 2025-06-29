@@ -1,20 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { useWishlist } from '../context/WishlistContext'; // Re-enabling Wishlist
-import { useAuth } from '../context/AuthContext';       // Re-enabling Auth for Wishlist
-import { Heart } from 'lucide-react';                  // Re-enabling Heart icon
 import API_URL from '../apiConfig';
 import Rating from '../components/Rating';
 
 const ProductScreen = () => {
     const { id: productId } = useParams();
     const navigate = useNavigate();
-
     const { addToCart } = useCart();
-    // --- RE-ENABLING WISHLIST AND AUTH ---
-    const { wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
-    const { userInfo } = useAuth();
 
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -24,52 +17,53 @@ const ProductScreen = () => {
 
     useEffect(() => {
         const fetchProduct = async () => {
+            // Set loading to true at the start of the fetch
+            setLoading(true);
             try {
-                setLoading(true);
                 const response = await fetch(`${API_URL}/api/products/${productId}`);
                 const data = await response.json();
-                if (!response.ok) throw new Error(data.message || 'Could not fetch product.');
+                if (!response.ok) {
+                    throw new Error(data.message || 'Could not fetch product.');
+                }
                 setProduct(data);
-                if (data.images && data.images.length > 0) setMainImage(data.images[0]);
+                
+                if (data.images && data.images.length > 0) {
+                    setMainImage(data.images[0]);
+                }
             } catch (err) {
                 setError(err.message);
             } finally {
+                // Set loading to false once the fetch is complete (either success or failure)
                 setLoading(false);
             }
         };
         fetchProduct();
     }, [productId]);
 
-    // --- RE-ENABLING WISHLIST LOGIC ---
-    const isWishlisted = product ? wishlistItems.some(item => item._id === product._id) : false;
-
-    const wishlistHandler = () => {
-        if (!userInfo) {
-            navigate('/login?redirect=/product/' + productId); // Redirect back after login
-            return;
-        }
-        if (isWishlisted) {
-            removeFromWishlist(product._id);
-        } else {
-            addToWishlist(product);
-        }
-    };
-    
     const addToCartHandler = () => {
-        addToCart(product, qty, { price: product.price, countInStock: product.countInStock });
+        addToCart(product, qty, {
+            price: product.price,
+            countInStock: product.countInStock
+        });
         navigate('/cart');
     };
 
-    // --- NEW "BUY NOW" HANDLER ---
-    const buyNowHandler = () => {
-        addToCart(product, qty, { price: product.price, countInStock: product.countInStock });
-        navigate('/shipping'); // The only difference: navigates directly to shipping
-    };
+    // --- THIS IS THE FIX ---
+    // This block uses the 'loading' variable, which resolves the error.
+    // It also provides a good user experience by showing a loading indicator.
+    if (loading) {
+        return <p className="text-center p-10 text-xl">Loading...</p>;
+    }
+    // ----------------------
 
-    if (loading) return <p className="text-center p-10">Loading...</p>;
-    if (error || !product) return <p className="text-center p-10 text-red-500">{error || 'Product not found.'}</p>;
+    // This block now correctly comes after the loading check
+    if (error || !product) {
+        return <p className="text-center p-10 text-xl text-red-500">{error || 'Product not found.'}</p>;
+    }
 
-    const isInStock = product.countInStock > 0;
+    const displayPrice = product.price;
+    const displayStock = product.countInStock;
+    const isInStock = displayStock > 0;
 
     return (
         <div className="container mx-auto p-4 md:p-8">
@@ -89,20 +83,13 @@ const ProductScreen = () => {
 
                 {/* Right Side: Product Details */}
                 <div>
-                    <div className="flex justify-between items-start">
-                        <h1 className="text-3xl font-bold mb-2 pr-4">{product.name}</h1>
-                        {/* --- RE-ENABLING WISHLIST BUTTON --- */}
-                        <button title="Add to Wishlist" className="p-2" onClick={wishlistHandler}>
-                           <Heart size={28} className="text-gray-500 hover:text-red-500 transition-colors" fill={isWishlisted ? '#ef4444' : 'none'} stroke={isWishlisted ? '#ef4444' : 'currentColor'} />
-                        </button>
-                    </div>
-
+                    <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
                     <p className="text-gray-500 mb-4">Brand: {product.brand}</p>
                     <div className="my-4"><Rating value={product.rating} text={`${product.numReviews} reviews`} /></div>
                     <hr className="my-4" />
                     
                     <div className="text-3xl font-bold text-gray-900 mb-4">
-                        ₹{product.price.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        ₹{displayPrice.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </div>
                     
                     <p className="font-semibold" style={{ color: isInStock ? 'green' : 'red' }}>
@@ -115,20 +102,16 @@ const ProductScreen = () => {
                         <div className="my-4">
                             <label className="font-bold text-gray-700">Qty:</label>
                             <select value={qty} onChange={(e) => setQty(Number(e.target.value))} className="ml-2 p-2 border rounded">
-                                {[...Array(product.countInStock).keys()].slice(0, 10).map(x => (
+                                {[...Array(displayStock).keys()].slice(0, 10).map(x => (
                                     <option key={x + 1} value={x + 1}>{x + 1}</option>
                                 ))}
                             </select>
                         </div>
                     )}
                     
-                    {/* --- ACTION BUTTONS WITH NEW "BUY NOW" BUTTON --- */}
                     <div className="mt-6 space-y-4">
-                        <button onClick={addToCartHandler} disabled={!isInStock} className="w-full bg-yellow-500 text-white font-bold py-3 px-6 rounded hover:bg-yellow-600 disabled:bg-gray-400 transition-colors">
+                        <button onClick={addToCartHandler} disabled={!isInStock} className="w-full bg-yellow-500 text-white font-bold py-3 px-6 rounded hover:bg-yellow-600 disabled:bg-gray-400">
                             Add to Cart
-                        </button>
-                        <button onClick={buyNowHandler} disabled={!isInStock} className="w-full bg-green-500 text-white font-bold py-3 px-6 rounded hover:bg-green-600 disabled:bg-gray-400 transition-colors">
-                            Buy Now
                         </button>
                     </div>
                 </div>
