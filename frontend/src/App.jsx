@@ -27,7 +27,7 @@ import UserEditScreen from './screens/UserEditScreen';
 import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
 import ResetPasswordScreen from './screens/ResetPasswordScreen';
 
-// --- 1. IMPORT THE NEW SCREEN FOR SUB-CATEGORIES ---
+// --- This import is necessary for the new route ---
 import SubCategoryScreen from './screens/SubCategoryScreen';
 
 import './styles/App.css';
@@ -43,10 +43,9 @@ function App() {
           <Route path="/search/:keyword" element={<HomeScreen />} />
           <Route path="/category/:category" element={<HomeScreen />} />
           
-          {/* --- 2. ADD THE NEW ROUTE FOR SUB-CATEGORIES --- */}
-          {/* This path matches the links we created in GroceriesScreen.js */}
-          <Route path="/subcategory/:subCategoryName" element={<SubCategoryScreen />} />
-          {/* ----------------------------------------------- */}
+          {/* --- This is the new route for sub-categories --- */}
+          <Route path="/subcategory/:subCategoryName" element={<SubCategoryScreen />} />
+          {/* --------------------------------------------- */}
 
           <Route path="/product/:id" element={<ProductScreen />} />
           <Route path="/login" element={<LoginScreen />} />
