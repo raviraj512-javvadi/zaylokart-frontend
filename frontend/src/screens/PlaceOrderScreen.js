@@ -4,18 +4,18 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import API_URL from '../apiConfig';
 
+// Import the new CSS file
+import './PlaceOrderScreen.css';
+
 const PlaceOrderScreen = () => {
   const navigate = useNavigate();
   const { cartItems, shippingAddress, paymentMethod, clearCart } = useCart();
   const { userInfo } = useAuth();
 
-  // --- THIS IS THE FIX ---
-  // Calculations are updated to remove tax.
   const itemsPrice = Number(cartItems.reduce((acc, item) => acc + item.price * item.qty, 0).toFixed(2));
   const shippingPrice = itemsPrice > 1000 ? 0 : 49;
-  const taxPrice = 0; // Tax is now set to 0.
-  const totalPrice = (itemsPrice + shippingPrice).toFixed(2); // Total no longer includes tax.
-  // -------------------------
+  const taxPrice = 0;
+  const totalPrice = (itemsPrice + shippingPrice).toFixed(2);
 
   useEffect(() => {
     if (!shippingAddress.address) {
@@ -38,7 +38,7 @@ const PlaceOrderScreen = () => {
           shippingAddress,
           paymentMethod,
           itemsPrice,
-          taxPrice, // Sending tax as 0
+          taxPrice,
           shippingPrice,
           totalPrice,
         }),
@@ -58,30 +58,31 @@ const PlaceOrderScreen = () => {
   };
 
   return (
-    <div className="container mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-6">Order Summary</h1>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-2 space-y-6">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-4">Shipping</h2>
+    <div className="place-order-container">
+      <h1 className="place-order-title">Order Summary</h1>
+      <div className="place-order-grid">
+        {/* Left Column */}
+        <div>
+          <div className="info-card">
+            <h2>Shipping</h2>
             <p><strong>Address:</strong> {shippingAddress.address}, {shippingAddress.city}, {shippingAddress.postalCode}, {shippingAddress.country}</p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-4">Payment Method</h2>
+          <div className="info-card">
+            <h2>Payment Method</h2>
             <p><strong>Method:</strong> {paymentMethod}</p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-4">Order Items</h2>
+          <div className="info-card">
+            <h2>Order Items</h2>
             {cartItems.length === 0 ? <p>Your cart is empty</p> : (
-              <div className="space-y-4">
+              <div className="order-items-list">
                 {cartItems.map((item, index) => (
-                  <div key={index} className="flex items-center">
-                    <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded mr-4" />
-                    <div className="flex-grow">
-                      <Link to={`/product/${item.product}`} className="font-semibold hover:underline">{item.name}</Link>
-                      <p className="text-sm text-gray-500">{item.ram} / {item.storage}</p>
+                  <div key={index} className="order-item">
+                    <img src={item.image} alt={item.name} className="order-item-image" />
+                    <div className="order-item-details">
+                      <Link to={`/product/${item.product}`}>{item.name}</Link>
+                      <p className="item-variant">{item.ram} / {item.storage}</p>
                     </div>
-                    <div className="text-right">
+                    <div className="order-item-total">
                       {item.qty} x ₹{item.price.toLocaleString('en-IN')} = ₹{(item.qty * item.price).toLocaleString('en-IN')}
                     </div>
                   </div>
@@ -90,23 +91,30 @@ const PlaceOrderScreen = () => {
             )}
           </div>
         </div>
-        <div className="md:col-span-1">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-4">Order Totals</h2>
-            <div className="space-y-2">
-              <p className="flex justify-between"><span>Items:</span> <span>₹{itemsPrice.toLocaleString('en-IN')}</span></p>
-              <p className="flex justify-between"><span>Shipping:</span> <span>₹{shippingPrice.toLocaleString('en-IN')}</span></p>
-              {/* --- THIS IS THE FIX: The tax row is now removed from view --- */}
-              <hr className="my-2" />
-              <p className="flex justify-between font-bold text-xl"><span>Total:</span> <span>₹{totalPrice.toLocaleString('en-IN')}</span></p>
+
+        {/* Right Column */}
+        <div>
+          <div className="order-summary-box">
+            <h2>Order Totals</h2>
+            <div className="summary-row">
+              <span>Items:</span>
+              <span>₹{itemsPrice.toLocaleString('en-IN')}</span>
+            </div>
+            <div className="summary-row">
+              <span>Shipping:</span>
+              <span>₹{shippingPrice.toLocaleString('en-IN')}</span>
+            </div>
+            <div className="summary-total-row">
+              <span>Total:</span>
+              <span>₹{totalPrice.toLocaleString('en-IN')}</span>
             </div>
             <button
               type="button"
-              className="w-full bg-gray-800 text-white font-bold py-3 px-6 rounded mt-6 hover:bg-gray-700 transition-colors disabled:bg-gray-400"
+              className="place-order-btn"
               disabled={cartItems.length === 0}
               onClick={placeOrderHandler}
             >
-              Confirm Place Order
+              Confirm & Place Order
             </button>
           </div>
         </div>
