@@ -1,0 +1,219 @@
+/* --- Main Profile Screen Container --- */
+.profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* --- Two-Column Grid Layout --- */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* Default to 1 column for mobile */
+  gap: 2rem;
+}
+
+/* --- Left Column: Profile Form --- */
+.profile-form-card {
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.profile-form-card h2 {
+  font-size: 1.5rem; /* Adjusted for mobile */
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #374151;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 5px;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+}
+
+.form-divider {
+  margin: 1.5rem 0;
+  border-top: 1px solid #e5e7eb;
+}
+
+.form-note {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 1rem;
+}
+
+.form-button {
+  width: 100%;
+  background-color: #2563eb;
+  color: #fff;
+  font-weight: 600;
+  padding: 0.75rem;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 1rem;
+}
+
+.form-button:hover {
+  background-color: #1d4ed8;
+}
+
+/* --- Alert Messages --- */
+.alert {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 5px;
+  border: 1px solid transparent;
+}
+.alert-success {
+  color: #155724;
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
+.alert-error {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+/* --- Right Column: Orders Table --- */
+.orders-card {
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.orders-card h2 {
+  font-size: 1.5rem; /* Adjusted for mobile */
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.orders-table-container {
+  width: 100%;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.orders-table thead {
+  display: none; /* Hide table head on mobile by default */
+}
+
+.orders-table tr {
+  display: block;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  padding: 1rem;
+}
+
+.orders-table td {
+  display: block;
+  text-align: right; /* Align content to the right */
+  padding: 0.5rem 0;
+  border-bottom: none; /* Remove default bottom border */
+  position: relative;
+}
+
+.orders-table td:last-child {
+  padding-bottom: 0;
+}
+
+.orders-table td::before {
+  content: attr(data-label); /* Use data-label for the header */
+  position: absolute;
+  left: 0;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.orders-table .status-paid {
+  color: #059669;
+}
+.orders-table .status-not-paid {
+  color: #dc2626;
+}
+
+.orders-table .details-btn {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+
+/* --- RESPONSIVE STYLES --- */
+
+/* For Tablets and up (768px) */
+@media (min-width: 768px) {
+  .profile-form-card h2, .orders-card h2 {
+    font-size: 1.75rem; /* Increase title size */
+  }
+
+  .orders-table-container {
+    overflow-x: auto; /* Re-enable horizontal scroll for table on tablets if needed */
+  }
+
+  .orders-table thead {
+    display: table-header-group; /* Show the table head again */
+  }
+
+  .orders-table tr {
+    display: table-row; /* Revert to standard table row display */
+    margin-bottom: 0;
+    border: none;
+    padding: 0;
+  }
+
+  .orders-table td {
+    display: table-cell; /* Revert to standard table cell display */
+    text-align: left; /* Align text to left again */
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    position: static; /* Reset position */
+  }
+
+  .orders-table td::before {
+    display: none; /* Hide the data-label headers */
+  }
+}
+
+
+/* For Laptops and up (992px) */
+@media (min-width: 992px) {
+  .profile-grid {
+    grid-template-columns: 1fr 2fr; /* Left column is 1/3, right is 2/3 */
+  }
+  .profile-container {
+    padding: 2rem;
+  }
+}
